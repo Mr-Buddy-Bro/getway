@@ -218,7 +218,7 @@ class TitleBar extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                  Container(width: 300, child: Text(title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),)),
                   subTitle != null? Container(width: 300, child: Text(subTitle!, style: TextStyle(fontSize: 16, color: Colors.black54, overflow: TextOverflow.ellipsis),)):SizedBox(),
                 ],
               ),
@@ -382,11 +382,12 @@ class DivCard extends StatelessWidget {
 
 class DescText extends StatelessWidget {
   final String text;
-  const DescText({required this.text, super.key});
+  final bool alignCenter;
+  const DescText({required this.text, super.key, this.alignCenter = false});
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: TextStyle(fontSize: 16, color: Colors.black54));
+    return Text(text, style: TextStyle(fontSize: 16, color: Colors.black54), textAlign: alignCenter?TextAlign.center:TextAlign.start,);
   }
 }
 
@@ -419,9 +420,9 @@ class SpecButton extends StatelessWidget {
 
 class SelectableMenuItem extends StatelessWidget {
   final String text;
-  final Icon icon;
+  final Icon? icon;
   final bool arrow;
-  const SelectableMenuItem({required this.text, required this.icon,this.arrow = true, super.key});
+  const SelectableMenuItem({required this.text, this.icon,this.arrow = true, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -430,7 +431,7 @@ class SelectableMenuItem extends StatelessWidget {
       children: [
         Row(
           children: [
-            icon,
+            icon != null?icon! : SizedBox(),
             SizedBox(width: 10,),
             TitleText(text: text)
           ],
