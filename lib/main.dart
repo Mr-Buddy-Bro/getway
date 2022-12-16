@@ -1,11 +1,17 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:getway/login.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:flutter/services.dart';
 
-void main() {
+import 'home.dart';
+
+Future main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: Colors.grey[100],
     statusBarIconBrightness: Brightness.dark
@@ -38,9 +44,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3), 
-      () => Navigator.pushReplacement(context, PageTransition(type: PageTransitionType.bottomToTop, child: LoginScreen()))
-    );
+    checkUser();
+    
   }
 
   @override
@@ -67,4 +72,15 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
+
+  Future checkUser() async{
+    final user = await FirebaseAuth.instance.currentUser;
+      Timer(Duration(seconds: 1),() {
+        if(user != null){
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen())));
+        }else{
+          Navigator.pushReplacement(context, PageTransition(type: PageTransitionType.bottomToTop, child: LoginScreen()));
+        }
+      });
+    }
 }

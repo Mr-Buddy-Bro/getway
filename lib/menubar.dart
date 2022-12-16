@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -14,7 +16,17 @@ class MenuBar extends StatefulWidget {
 }
 
 class _MenuBarState extends State<MenuBar> {
-  final String buttonLabel = 'Log in';
+
+  User? c_user = FirebaseAuth.instance.currentUser;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    // FirebaseFirestore.instance.collection('Users').
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,9 +76,9 @@ class _MenuBarState extends State<MenuBar> {
                       SizedBox(height: 10,),
                       GestureDetector(
                         onTap: () {
-                          buttonLabel == 'Log in'?Navigator.push(context, MaterialPageRoute(builder: ((context) => LoginScreen()))):Navigator.push(context, MaterialPageRoute(builder: ((context) => ProfileScreen())));
+                          c_user == null?Navigator.push(context, MaterialPageRoute(builder: ((context) => LoginScreen()))):Navigator.push(context, MaterialPageRoute(builder: ((context) => ProfileScreen())));
                         },
-                        child: SpecButton(text: buttonLabel,)
+                        child: SpecButton(text: c_user!=null?'Profile':'Log In',)
                       ),
                     ],
                   ),
@@ -76,7 +88,7 @@ class _MenuBarState extends State<MenuBar> {
                       SizedBox(height: 20,),
                       Text('Username'.toUpperCase(), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       SizedBox(height: 5,),
-                      Text('name@example.com'.toLowerCase(), style: TextStyle(fontSize: 18, color: Color.fromARGB(218, 92, 182, 95))),
+                      Text(c_user!=null?c_user!.email!:'name@example.com'.toLowerCase(), style: TextStyle(fontSize: 18, color: Color.fromARGB(218, 92, 182, 95))),
                     ],
                   )
                 ],

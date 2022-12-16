@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.getway">
+    package="com.widecity.getway">
+
+     <uses-permission android:name="android.permission.INTERNET"/>
+
    <application
         android:label="getway"
         android:name="${applicationName}"

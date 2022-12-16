@@ -1,4 +1,4 @@
-package com.example.getway
+package com.widecity.getway
 
 import io.flutter.embedding.android.FlutterActivity
 

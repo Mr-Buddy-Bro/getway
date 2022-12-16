@@ -27,14 +27,11 @@ class InputText extends StatelessWidget {
   final bool pass;
   final bool email;
   final int maxLine;
-  const InputText({required this.hint, this.icon = null, this.email=false, this.pass = false, super.key, this.text='', this.maxLine=1, this.label});
+  final TextEditingController? controller;
+  const InputText({required this.hint, this.icon = null, this.email=false, this.pass = false,this.controller, super.key, this.text='', this.maxLine=1, this.label});
 
   @override
   Widget build(BuildContext context) {
-
-    final _nameController = TextEditingController();
-    _nameController.text = text;
-
 
     return Container(
       decoration: BoxDecoration(
@@ -44,7 +41,7 @@ class InputText extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
         maxLines: maxLine,
-        controller: _nameController,
+        controller: controller,
         autocorrect: false,
         autofillHints: null,
         obscureText: pass,
@@ -545,6 +542,18 @@ class MyAalert extends StatelessWidget {
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       backgroundColor: Colors.white
+    );
+  }
+}
+
+class MySnackBar extends StatelessWidget {
+  final String msg;
+  const MySnackBar({required this.msg, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text(msg),
     );
   }
 }

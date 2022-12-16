@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/login.dart';
 import 'package:getway/widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -11,6 +13,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+
+  final c_user = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           SizedBox(height: 8,),
-          LinkText(text: 'akhilpullan4@gmail.com', size: 18,),
+          LinkText(text: c_user!.email!, size: 18,),
           SizedBox(height: 30,),
           TraceCard(keyName: 'Level', value: '1', bg: false,),
           TraceCard(keyName: 'Mobile', value: '+91 8943194516', bg: false,),
@@ -62,7 +67,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(40.0),
             child: Container(
               width: double.infinity,
-              child: SpecButton(text: 'Sign out', warning: true,)
+              child: GestureDetector(
+                onTap: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => LoginScreen())));
+                },
+                child: SpecButton(text: 'Sign out', warning: true,)
+              )
             ),
           )
         ],

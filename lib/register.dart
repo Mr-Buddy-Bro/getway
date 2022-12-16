@@ -1,8 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/user.dart';
+import 'package:getway/encrypt.dart';
+import 'package:getway/home.dart';
 import 'package:getway/widgets.dart';
 import 'package:page_transition/page_transition.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,6 +18,11 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+
+  final fnameController = TextEditingController();
+  final lnameController = TextEditingController();
+  late UserModel user;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,13 +42,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 SizedBox(height: 15,),
                 Text('Create your own account\nfor free to continue. Explore institution without any\nrestrictions. ', textAlign: TextAlign.center, style: TextStyle(fontSize: 16),),
                 SizedBox(height:35,),
-                InputText(hint: 'Enter your first name', icon: Icon(Icons.label)),
+                InputText(hint: 'Enter your first name', icon: Icon(Icons.label), controller: fnameController,),
                 SizedBox(height: 10,),
-                InputText(hint: 'Enter your last name', icon: Icon(Icons.label),),
+                InputText(hint: 'Enter your last name', icon: Icon(Icons.label), controller: lnameController),
                 SizedBox(height: 30,),
                 GestureDetector(
                   onTap: (){
-                    Navigator.push(context, PageTransition(child: RegisterScreen2(), type: PageTransitionType.rightToLeft));
+                    final fname = fnameController.text.trim();
+                    final lname = lnameController.text.trim();
+                    if(fname.isNotEmpty && lname.isNotEmpty){
+                      user = UserModel(fname, lname, '', '', '');
+                      Navigator.push(context, PageTransition(child: RegisterScreen2(user: user,), type: PageTransitionType.rightToLeft));
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please enter you first name and last name')));
+                    }
                   },
                   child: PrimaryButton(text: 'Next',)
                 ),
@@ -61,13 +79,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 class RegisterScreen2 extends StatefulWidget {
-  const RegisterScreen2({super.key});
+  final UserModel user;
+  const RegisterScreen2({required this.user, super.key});
 
   @override
-  State<RegisterScreen2> createState() => _RegisterScreen2State();
+  State<RegisterScreen2> createState() => _RegisterScreen2State(user);
 }
 
 class _RegisterScreen2State extends State<RegisterScreen2> {
+  final UserModel _user;
+  final email_controller = TextEditingController();
+  final username_controller = TextEditingController();
+  
+  _RegisterScreen2State(this._user);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,14 +112,21 @@ class _RegisterScreen2State extends State<RegisterScreen2> {
                 SizedBox(height: 15,),
                 Text('Enter an email address\nand a username to access your account later. ', textAlign: TextAlign.center, style: TextStyle(fontSize: 16),),
                 SizedBox(height:35,),
-                InputText(hint: 'Enter your email address', icon: Icon(Icons.email_rounded), email: true),
+                InputText(hint: 'Enter your email address', icon: Icon(Icons.email_rounded), email: true, controller: email_controller),
                 SizedBox(height: 10,),
-                InputText(hint: 'Enter a username', icon: Icon(Icons.person),),
+                InputText(hint: 'Enter a username', icon: Icon(Icons.person), controller: username_controller,),
                 SizedBox(height: 10,),
                 SizedBox(height: 30,),
                 GestureDetector(
                   onTap: (){
-                    Navigator.push(context, PageTransition(child: RegisterScreen3(), type: PageTransitionType.rightToLeft));
+                    final email = email_controller.text.trim();
+                    final username = username_controller.text.trim();
+                    if(email.isNotEmpty && username.isNotEmpty){
+                      final user = UserModel(_user.firstName, _user.lastName, email, username, '');
+                      Navigator.push(context, PageTransition(child: RegisterScreen3(user: user), type: PageTransitionType.rightToLeft));
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please enter you email and username')));
+                    }
                   },
                   child: PrimaryButton(text: 'Next',)
                 ),
@@ -118,13 +150,21 @@ class _RegisterScreen2State extends State<RegisterScreen2> {
 }
 
 class RegisterScreen3 extends StatefulWidget {
-  const RegisterScreen3({super.key});
+  final UserModel user;
+  const RegisterScreen3({super.key, required this.user});
 
   @override
-  State<RegisterScreen3> createState() => _RegisterScreen3State();
+  State<RegisterScreen3> createState() => _RegisterScreen3State(user);
 }
 
 class _RegisterScreen3State extends State<RegisterScreen3> {
+  final UserModel _user;
+  final passController = TextEditingController();
+  final rePassController = TextEditingController();
+
+  _RegisterScreen3State(this._user);
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,14 +184,26 @@ class _RegisterScreen3State extends State<RegisterScreen3> {
                 SizedBox(height: 15,),
                 Text('Enter an email address\nand a username to access your account later. ', textAlign: TextAlign.center, style: TextStyle(fontSize: 18),),
                 SizedBox(height:35,),
-                InputText(hint: 'Enter a password', icon: Icon(Icons.key_rounded), pass: true,),
+                InputText(hint: 'Enter a password', icon: Icon(Icons.key_rounded), pass: true, controller: passController,),
                 SizedBox(height: 10,),
-                InputText(hint: 'Confirm password', icon: Icon(Icons.key_rounded)),
+                InputText(hint: 'Confirm password', icon: Icon(Icons.key_rounded), controller: rePassController,),
                 SizedBox(height: 10,),
                 SizedBox(height: 30,),
                 GestureDetector(
                   onTap: (){
-                    // Navigator.push(context, PageTransition(child: RegisterScreen3(), type: PageTransitionType.rightToLeft));
+                    final pass = passController.text.trim();
+                    final rePass = rePassController.text.trim();
+                    if(pass.length > 6 && rePass.isNotEmpty){
+                      if(pass == rePass){
+                        final user = UserModel(_user.firstName, _user.lastName, _user.email, _user.username, pass);
+                        _signUp(user);
+                      }else{
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Password do not match')));
+                      } 
+                      // Navigator.push(context, PageTransition(child: RegisterScreen3(user: _user), type: PageTransitionType.rightToLeft));
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Not a valid password')));
+                    }
                   },
                   child: PrimaryButton(text: 'Continue',)
                 ),
@@ -171,6 +223,24 @@ class _RegisterScreen3State extends State<RegisterScreen3> {
         ),
       ),
     );
+  }
+  
+  Future _signUp(UserModel user) async {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please wait...')));
+
+    
+
+    
+    try{
+      final f_user = UserModel(MyEncrypter().encrypt(user.firstName), MyEncrypter().encrypt(user.lastName),
+       MyEncrypter().encrypt(user.email), MyEncrypter().encrypt(user.username), MyEncrypter().encrypt(user.password));
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: user.email, password: user.password);
+      await FirebaseFirestore.instance.collection('Users').doc(f_user.username).set(f_user.toJson());
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen())));
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Something went wrong! Please try again $e')));
+    }
+    
   }
 }
 

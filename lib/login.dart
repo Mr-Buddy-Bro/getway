@@ -1,3 +1,5 @@
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -15,8 +17,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  final email_controller = TextEditingController();
+  final pass_controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 246, 246, 246),
       body: Center(
@@ -32,9 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 15,),
               Text('Use your\ncredentials to login to your account', textAlign: TextAlign.center, style: TextStyle(fontSize: 16),),
               SizedBox(height:35,),
-              InputText(hint: 'Username/Email id', icon: Icon(Icons.person),),
+              InputText(hint: 'Username/Email id', icon: Icon(Icons.person), controller : email_controller),
               SizedBox(height: 10,),
-              InputText(hint: 'Password', icon: Icon(Icons.key_rounded), pass: true),
+              InputText(hint: 'Password', icon: Icon(Icons.key_rounded), pass: true, controller: pass_controller,),
               SizedBox(height: 10,),
               Container(
                 width: double.infinity,
@@ -44,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
               GestureDetector(
                 onTap: (){
                   // Navigator.pushReplacement(context, PageTransition(child: HomeScreen(), type: PageTransitionType.bottomToTop));
+                  _signIn();
                 },
                 child: PrimaryButton(text: 'Login',)
               ),
@@ -70,5 +78,43 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  
+  void _signIn() {
+    final emailOrUsername = email_controller.text.trim();
+    final passsword = pass_controller.text.trim();
+
+    if(emailOrUsername.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: MySnackBar(msg: 'Invalid email/username'))
+      );
+    }else if(passsword.isEmpty){
+       ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: MySnackBar(msg: 'Please enter your password'))
+      );
+    }else{
+      //sign in
+      if(emailOrUsername.contains('@')){
+        _signInWithEmailAndPass(emailOrUsername, passsword);
+      }else{
+        //get email from database for the username
+      }
+    }
+
+    
+  }
+  
+  Future _signInWithEmailAndPass(String email, String pass) async{
+    try{
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: pass);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen())));
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: MySnackBar(msg: 'Invalid credentials'))
+      );
+    }
+    
+  }
+
+  
 }
 
