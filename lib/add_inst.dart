@@ -1,21 +1,31 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/institution.dart';
+import 'package:getway/data_models/user.dart';
 import 'package:getway/home.dart';
 import 'package:getway/widgets.dart';
 import 'package:getway/your_institutions.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
 
-class AddInstitution extends StatefulWidget {
-  const AddInstitution({super.key});
+class AddInstitution extends StatelessWidget {
+  UserModel? user;
+  AddInstitution({super.key, this.user});
 
-  @override
-  State<AddInstitution> createState() => _AddInstitutionState();
-}
+  final displayNameController = TextEditingController();
 
-class _AddInstitutionState extends State<AddInstitution> {
+  final descriptionController = TextEditingController();
+
+  final hioController = TextEditingController();
+
+  final contactNoController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,11 +51,7 @@ class _AddInstitutionState extends State<AddInstitution> {
               children: [
                 TitleText(text: 'Institution details'),
                 SizedBox(height: 20,),
-                InputText(hint: 'Institution name', icon: Icon(Icons.house, color: Colors.green,),),
-                SizedBox(height: 10,),
-                InputText(hint: 'No. of blocks',),
-                SizedBox(height: 10,),
-                InputText(hint: 'No. of rooms',),
+                InputText(hint: 'Institution name', icon: Icon(Icons.house, color: Colors.green,), controller: displayNameController,),
                 SizedBox(height: 10,),
                 Container(
                   height: 140,
@@ -55,23 +61,39 @@ class _AddInstitutionState extends State<AddInstitution> {
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: TextField(
+                    controller: descriptionController,
                     maxLines: 50,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Type your suggestion here',
+                      hintText: 'Description',
                       hintStyle: TextStyle(color: Colors.black45),
                       counter: Text('0/200', style: TextStyle(color: Colors.black54),)
                     ),
                   ),
                 ),
                 SizedBox(height: 10,),
-                InputText(hint: 'Head of the Institution', icon: Icon(Icons.person, color: Colors.green,),),
+                InputText(hint: 'Head of the Institution', icon: Icon(Icons.person, color: Colors.green,), controller: hioController,),
                 SizedBox(height: 10,),
-                InputText(hint: 'Contact No.', icon: Icon(Icons.call, color: Colors.green,),),
+                InputText(hint: 'Contact No.', icon: Icon(Icons.call, color: Colors.green,), controller: contactNoController,),
                 SizedBox(height: 40,),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution2())));
+                    final displayName = displayNameController.text.trim();
+                    final description = descriptionController.text.trim();
+                    final hoi = hioController.text.trim();
+                    final contactNo = contactNoController.text.trim();
+
+                    if(displayName.isNotEmpty && description.isNotEmpty && hoi.isNotEmpty && contactNo.isNotEmpty){
+                      if(description.length > 100){
+                        final inst = InstitutionModel(displayName, description, hoi, contactNo, '', '', '', '', '', user!.username);
+                        Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution2(inst))));
+                      }else{
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Description must be atleast 50 characters')));
+                      }
+                      
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please fill all details')));
+                    }
                   },
                   child: PrimaryButton(text: 'Next')
                 ),
@@ -87,16 +109,19 @@ class _AddInstitutionState extends State<AddInstitution> {
   }
 }
 
-class AddInstitution2 extends StatefulWidget {
-  const AddInstitution2({super.key});
+class AddInstitution2 extends StatelessWidget {
+  InstitutionModel inst;
+  AddInstitution2(this.inst, {super.key});
 
-  @override
-  State<AddInstitution2> createState() => _AddInstitution2State();
-}
-
-class _AddInstitution2State extends State<AddInstitution2> {
   @override
   Widget build(BuildContext context) {
+
+    final shortNameController = TextEditingController();
+    final landmarkController = TextEditingController();
+    final cityController = TextEditingController();
+    final districtController = TextEditingController();
+    final pincodeController = TextEditingController();
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: ListView(
@@ -120,19 +145,31 @@ class _AddInstitution2State extends State<AddInstitution2> {
               children: [
                 TitleText(text: 'Institution Address'),
                 SizedBox(height: 20,),
-                InputText(hint: 'Institution short name', icon: Icon(Icons.house, color: Colors.green,),),
+                InputText(hint: 'Institution short name', icon: Icon(Icons.house, color: Colors.green,), controller: shortNameController,),
                 SizedBox(height: 10,),
-                InputText(hint: 'Landmark',icon: Icon(Icons.landslide, color: Colors.green,)),
+                InputText(hint: 'Landmark',icon: Icon(Icons.landslide, color: Colors.green,), controller: landmarkController,),
                 SizedBox(height: 20,),
-                InputText(hint: 'City',icon: Icon(Icons.location_city_rounded, color: Colors.green,)),
+                InputText(hint: 'City',icon: Icon(Icons.location_city_rounded, color: Colors.green,), controller: cityController,),
                 SizedBox(height: 10,),
-                InputText(hint: 'District', icon: Icon(Icons.terrain, color: Colors.green,),),
+                InputText(hint: 'District', icon: Icon(Icons.terrain, color: Colors.green,),controller: districtController,),
                 SizedBox(height: 20,),
-                InputText(hint: 'Pin code', icon: Icon(Icons.pin, color: Colors.green,),),
+                InputText(hint: 'Pin code', icon: Icon(Icons.pin, color: Colors.green,),controller: pincodeController,),
                 SizedBox(height: 40,),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution3())));
+                    final shortName = shortNameController.text.trim();
+                    final landmark = landmarkController.text.trim();
+                    final city = cityController.text.trim();
+                    final district = districtController.text.trim();
+                    final pincode = pincodeController.text.trim();
+
+                    if(shortName.isNotEmpty && landmark.isNotEmpty && city.isNotEmpty && district.isNotEmpty && pincode.isNotEmpty){
+                      final _inst = InstitutionModel(inst.displayName, inst.description, inst.hoi, inst.contactNo, shortName, landmark, city, district, pincode,inst.username);
+                      Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution3(_inst))));
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please fill all details')));
+                    }
+                    
                   },
                   child: PrimaryButton(text: 'Next')
                 ),
@@ -148,33 +185,35 @@ class _AddInstitution2State extends State<AddInstitution2> {
   }
 }
 
-class AddInstitution3 extends StatefulWidget {
-  const AddInstitution3({super.key});
+class AddInstitution3 extends StatefulWidget{
+  InstitutionModel inst;
+  AddInstitution3(this.inst, {super.key});
 
   @override
-  State<AddInstitution3> createState() => _AddInstitution3State();
+  State<AddInstitution3> createState() => _AddInstitution3State(inst);
 }
 
 class _AddInstitution3State extends State<AddInstitution3> {
   final bool pic_selected = false;
-  File? _image;
+  // File? _image;
+  XFile? _image;
+  InstitutionModel inst;
+  _AddInstitution3State(this.inst);
 
   Future _getImage() async{
-    
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-
     if(image == null){
       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(('null')))
+                        SnackBar(content: Text(('Something went wrong! Please try again')))
                       );
     }else{
-      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(('ok')))
-                      );
+      //on pic
+      setState(() {
+        _image = image;
+      });
+      
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(('finish')))
-                      );
+    
   }
 
   @override
@@ -216,7 +255,7 @@ class _AddInstitution3State extends State<AddInstitution3> {
                       _getImage();
                       
                     },
-                    child: SpecButton(text: 'Select institution photo')
+                    child: _image==null?SpecButton(text: 'Select institution photo'):Image.file(File(_image!.path)),
                     )
                 ),
                 SizedBox(height: 40,),
@@ -226,7 +265,8 @@ class _AddInstitution3State extends State<AddInstitution3> {
                   },
                   child: GestureDetector(
                     onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: ((context) => YourInstitutions())));
+                      _upload(_image, inst);
+                      
                     },
                     child: PrimaryButton(text: 'Finish',)
                   )
@@ -241,6 +281,30 @@ class _AddInstitution3State extends State<AddInstitution3> {
         ],
       ),
     );
+  }
+  
+  Future _upload(XFile? image, InstitutionModel inst)async {
+    final path = 'Institutions/${inst.username+inst.shortName}/img/${image!.name}';
+    final file = File(image.path);
+
+  try{
+    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(('Uploading...')))
+                      );
+                    
+    await FirebaseFirestore.instance.collection('Institution').doc(inst.username+inst.shortName).set(inst.toJson());
+    await FirebaseStorage.instance.ref().child(path).putFile(file);
+    
+    Navigator.push(context, MaterialPageRoute(builder: ((context) => YourInstitutions())));
+    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(('New Institution added')))
+                      );
+  }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(('error: $e')))
+                      );
+  }
+    
   }
   
  

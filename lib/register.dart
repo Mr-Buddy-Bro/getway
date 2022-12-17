@@ -227,18 +227,18 @@ class _RegisterScreen3State extends State<RegisterScreen3> {
   
   Future _signUp(UserModel user) async {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please wait...')));
-
+    late final UserModel f_user;
     
 
     
     try{
-      final f_user = UserModel(MyEncrypter().encrypt(user.firstName), MyEncrypter().encrypt(user.lastName),
+      f_user = UserModel(MyEncrypter().encrypt(user.firstName), MyEncrypter().encrypt(user.lastName),
        MyEncrypter().encrypt(user.email), MyEncrypter().encrypt(user.username), MyEncrypter().encrypt(user.password));
       await FirebaseAuth.instance.createUserWithEmailAndPassword(email: user.email, password: user.password);
       await FirebaseFirestore.instance.collection('Users').doc(f_user.username).set(f_user.toJson());
       Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen())));
     }catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Something went wrong! Please try again $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Something went wrong! Please try again : ${e}')));
     }
     
   }

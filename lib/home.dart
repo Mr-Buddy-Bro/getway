@@ -1,9 +1,14 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:encrypt/encrypt.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/user.dart';
+import 'package:getway/encrypt.dart';
 import 'package:getway/institutiondetails.dart';
 import 'package:getway/menubar.dart';
 import 'package:getway/widgets.dart';
@@ -18,17 +23,23 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
+  UserModel? user = null;
+  final f_user = FirebaseAuth.instance.currentUser;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    _getUser();
     
-
   }
 
   @override
   Widget build(BuildContext context) {
+    if(user != null){
+      print(user!.firstName);
+    }
+    
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: ListView(
@@ -57,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Image.asset('assets/img/logo.png', scale: 8.0,),
                           InkWell(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => MenuBar()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => MenuBar(user : user)));
                             },
                             child: Container(
                               width: 40.0,
@@ -99,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
                   height: 180,
                   child: PageView.builder(
-                    controller: PageController(viewportFraction: 0.9),
+                    controller: PageController(viewportFraction: MediaQuery.of(context).size.width > 600?0.8:0.9),
                     itemCount: 5,
                     itemBuilder: (context, index) {
                       return InkWell(
@@ -124,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: GridView.builder(
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+                crossAxisCount: MediaQuery.of(context).size.width > 600?4:2,
                 childAspectRatio: 0.8,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 10
@@ -144,5 +155,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+  
+  Future _getUser() async{
+    late String email;
+    late String username;
+    late String firstname;
+    late String lastname;
+    late String password;
+    try{
+      await FirebaseFirestore.instance.collection('Users').get().then((snapshot) {
+            snapshot.docs.forEach((element) {
+              email = MyEncrypter().decrypt(element.data()['email'].toString());
+              username = MyEncrypter().decrypt(element.data()['username'].toString());
+              firstname = MyEncrypter().decrypt(element.data()['firstname'].toString());
+              lastname = MyEncrypter().decrypt(element.data()['lastname'].toString());
+              password = MyEncrypter().decrypt(element.data()['password'].toString());
+              if(f_user!.email == email){
+                setState(() {
+                  user = UserModel(firstname, lastname, email, username, password);
+                });
+              }
+            });
+            
+          });
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'errorr : $e')));
+    }
+    
   }
 }

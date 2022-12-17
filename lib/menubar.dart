@@ -3,21 +3,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/user.dart';
 import 'package:getway/login.dart';
 import 'package:getway/profile.dart';
 import 'package:getway/widgets.dart';
 import 'package:getway/your_institutions.dart';
 
 class MenuBar extends StatefulWidget {
-  const MenuBar({super.key});
+  UserModel? user;
+  MenuBar({super.key, this.user = null});
 
   @override
-  State<MenuBar> createState() => _MenuBarState();
+  State<MenuBar> createState() => _MenuBarState(user);
 }
 
 class _MenuBarState extends State<MenuBar> {
-
-  User? c_user = FirebaseAuth.instance.currentUser;
+  UserModel? user;
+  
+  _MenuBarState(this.user);
 
   @override
   void initState() {
@@ -76,9 +79,9 @@ class _MenuBarState extends State<MenuBar> {
                       SizedBox(height: 10,),
                       GestureDetector(
                         onTap: () {
-                          c_user == null?Navigator.push(context, MaterialPageRoute(builder: ((context) => LoginScreen()))):Navigator.push(context, MaterialPageRoute(builder: ((context) => ProfileScreen())));
+                          user == null?Navigator.push(context, MaterialPageRoute(builder: ((context) => LoginScreen()))):Navigator.push(context, MaterialPageRoute(builder: ((context) => ProfileScreen(user : user))));
                         },
-                        child: SpecButton(text: c_user!=null?'Profile':'Log In',)
+                        child: SpecButton(text: user!=null?'Profile':'Log In',)
                       ),
                     ],
                   ),
@@ -86,9 +89,9 @@ class _MenuBarState extends State<MenuBar> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 20,),
-                      Text('Username'.toUpperCase(), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(user!=null?user!.username.toUpperCase():'Username'.toUpperCase(), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       SizedBox(height: 5,),
-                      Text(c_user!=null?c_user!.email!:'name@example.com'.toLowerCase(), style: TextStyle(fontSize: 18, color: Color.fromARGB(218, 92, 182, 95))),
+                      Text(user!=null?user!.email:'name@example.com'.toLowerCase(), style: TextStyle(fontSize: 18, color: Color.fromARGB(218, 92, 182, 95))),
                     ],
                   )
                 ],
@@ -105,7 +108,7 @@ class _MenuBarState extends State<MenuBar> {
                   SizedBox(height: 10,),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: ((context) => YourInstitutions())));
+                      Navigator.push(context, MaterialPageRoute(builder: ((context) => YourInstitutions(user : user))));
                     },
                     child: SelectableMenuItem(text: 'Your institutions', icon: Icon(Icons.house),)
                   ),

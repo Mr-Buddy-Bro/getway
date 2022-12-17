@@ -2,19 +2,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/user.dart';
 import 'package:getway/login.dart';
 import 'package:getway/widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  UserModel? user;
+  ProfileScreen({super.key, this.user = null});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState(user);
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
-  final c_user = FirebaseAuth.instance.currentUser;
+  UserModel? user;
+  
+  _ProfileScreenState(this.user);
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +36,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Akhil Benny'.toUpperCase(), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
+              Text('${user!.firstName} ${user!.lastName}'.toUpperCase(), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
               SizedBox(width: 10,),
               Icon(Icons.edit_note_rounded)
             ],
           ),
           SizedBox(height: 8,),
-          LinkText(text: c_user!.email!, size: 18,),
+          LinkText(text: user!.email, size: 18,),
           SizedBox(height: 30,),
           TraceCard(keyName: 'Level', value: '1', bg: false,),
-          TraceCard(keyName: 'Mobile', value: '+91 8943194516', bg: false,),
+          // TraceCard(keyName: 'Mobile', value: '+91 8943194516', bg: false,),
           SizedBox(height: 10,),
           Padding(
             padding: const EdgeInsets.all(20.0),
