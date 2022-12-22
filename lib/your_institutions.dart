@@ -1,3 +1,4 @@
+
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/add_inst.dart';
+import 'package:getway/data_models/institution.dart';
 import 'package:getway/data_models/user.dart';
 import 'package:getway/edit_inst.dart';
 import 'package:getway/widgets.dart';
@@ -62,10 +64,31 @@ class _YourInstitutionsState extends State<YourInstitutions> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('Institutions').snapshots(),
+              stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
               builder: ((BuildContext context, AsyncSnapshot snapshot) {
                 if(!snapshot.hasData) return Text('Loading');
-                return GridView.builder(
+                List<InstitutionModel> institutions = [];
+                DocumentSnapshot doc;
+                for(doc in snapshot.data.docs){
+                  final displayName = doc['displayName'];
+                  final desc = doc['description'];
+                  final hoi = doc['hoi'];
+                  final contactNo = doc['contactNo'];
+                  final shortName = doc['shortName'];
+                  final landmark = doc['landmark'];
+                  final city = doc['city'];
+                  final district = doc['district'];
+                  final pincode = doc['pincode'];
+                  final username = doc['username'];
+                  final photoUrl = doc['photoUrl'];
+
+                  final inst = InstitutionModel(displayName, desc, hoi, 
+                  contactNo, shortName, landmark, city, district, pincode, 
+                  username, photoUrl);
+                  if(inst.username == user!.username)
+                  institutions.add(inst);
+                }
+                return institutions.length > 0? GridView.builder(
                   shrinkWrap: true,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: MediaQuery.of(context).size.width > 600?4:2,
@@ -73,40 +96,23 @@ class _YourInstitutionsState extends State<YourInstitutions> {
                     crossAxisSpacing: 8,
                     childAspectRatio: .8
                   ),
-                  itemCount: 3,
-                  itemBuilder: ((context, index) {
-                    return InkWell(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditInst()));
-                        },
-                        child: NearbyInstCard(text: 'Tite ${index+1} goes here',)
-                      );
-                  })
-                );
+                  itemCount: institutions.length,
+                  itemBuilder: (context, index) {                    
+                    return NearbyInstCard(text: institutions[index].displayName, photoUrl: institutions[index].photoUrl,);
+                  },
+                ):DescText(text: 'You haven\'t added any Institutions yet', alignCenter: true,);
               }),
-              // child: GridView.builder(
-              //   shrinkWrap: true,
-              //   primary: false,
-              //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              //     crossAxisCount: MediaQuery.of(context).size.width > 600?4:2,
-              //     mainAxisSpacing: 10,
-              //     crossAxisSpacing: 8,
-              //     childAspectRatio: .8
-              //   ),
-              //   itemCount: 3,
-              //   itemBuilder: ((context, index) {
-              //     return InkWell(
-              //         onTap: (){
-              //           Navigator.push(context, MaterialPageRoute(builder: (context) => EditInst()));
-              //         },
-              //         child: NearbyInstCard(text: 'Tite ${index+1} goes here',)
-              //       );
-              //   })
-              // ),
+              
             ),
-          )
+            
+          ),
+          SizedBox(height: 20,),
+          DescText(text: 'Click on Add+\nbutton to add an Institution', alignCenter: true,)
         ],
       ),
     );
   }
+  
+  
+ 
 }

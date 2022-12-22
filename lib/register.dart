@@ -51,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     final fname = fnameController.text.trim();
                     final lname = lnameController.text.trim();
                     if(fname.isNotEmpty && lname.isNotEmpty){
-                      user = UserModel(fname, lname, '', '', '');
+                      user = UserModel(fname, lname, '', '', '', '');
                       Navigator.push(context, PageTransition(child: RegisterScreen2(user: user,), type: PageTransitionType.rightToLeft));
                     }else{
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please enter you first name and last name')));
@@ -119,10 +119,10 @@ class _RegisterScreen2State extends State<RegisterScreen2> {
                 SizedBox(height: 30,),
                 GestureDetector(
                   onTap: (){
-                    final email = email_controller.text.trim();
-                    final username = username_controller.text.trim();
+                    final email = email_controller.text.toLowerCase().trim();
+                    final username = username_controller.text.toLowerCase().trim();
                     if(email.isNotEmpty && username.isNotEmpty){
-                      final user = UserModel(_user.firstName, _user.lastName, email, username, '');
+                      final user = UserModel(_user.firstName, _user.lastName, email, username, '', '');
                       Navigator.push(context, PageTransition(child: RegisterScreen3(user: user), type: PageTransitionType.rightToLeft));
                     }else{
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please enter you email and username')));
@@ -195,7 +195,7 @@ class _RegisterScreen3State extends State<RegisterScreen3> {
                     final rePass = rePassController.text.trim();
                     if(pass.length > 6 && rePass.isNotEmpty){
                       if(pass == rePass){
-                        final user = UserModel(_user.firstName, _user.lastName, _user.email, _user.username, pass);
+                        final user = UserModel(_user.firstName, _user.lastName, _user.email, _user.username, pass, '');
                         _signUp(user);
                       }else{
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Password do not match')));
@@ -229,16 +229,17 @@ class _RegisterScreen3State extends State<RegisterScreen3> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please wait...')));
     late final UserModel f_user;
     
-
-    
     try{
       f_user = UserModel(MyEncrypter().encrypt(user.firstName), MyEncrypter().encrypt(user.lastName),
-       MyEncrypter().encrypt(user.email), MyEncrypter().encrypt(user.username), MyEncrypter().encrypt(user.password));
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: user.email, password: user.password);
+       MyEncrypter().encrypt(user.email), MyEncrypter().encrypt(user.username), MyEncrypter().encrypt(user.password), '');
+      
+      print(f_user.toJson());
       await FirebaseFirestore.instance.collection('Users').doc(f_user.username).set(f_user.toJson());
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: user.email, password: user.password);
       Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen())));
     }catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Something went wrong! Please try again : ${e}')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Try another username')));
+      print(e);
     }
     
   }

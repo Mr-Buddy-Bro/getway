@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -11,13 +12,20 @@ import 'package:getway/data_models/user.dart';
 import 'package:getway/home.dart';
 import 'package:getway/widgets.dart';
 import 'package:getway/your_institutions.dart';
+import 'package:image_compression_flutter/image_compression_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 
-class AddInstitution extends StatelessWidget {
+class AddInstitution extends StatefulWidget {
   UserModel? user;
   AddInstitution({super.key, this.user});
 
+  @override
+  State<AddInstitution> createState() => _AddInstitutionState();
+}
+
+class _AddInstitutionState extends State<AddInstitution> {
+  String count = '0';
   final displayNameController = TextEditingController();
 
   final descriptionController = TextEditingController();
@@ -61,13 +69,20 @@ class AddInstitution extends StatelessWidget {
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: TextField(
+                    maxLength: 400,
                     controller: descriptionController,
+                    onChanged: (text){
+                      final c = descriptionController.text.length;
+                      setState(() {
+                        count = c.toString();
+                      });
+                    },
                     maxLines: 50,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Description',
                       hintStyle: TextStyle(color: Colors.black45),
-                      counter: Text('0/200', style: TextStyle(color: Colors.black54),)
+                      counter: Text('$count/400', style: TextStyle(color: Colors.black54),)
                     ),
                   ),
                 ),
@@ -85,8 +100,8 @@ class AddInstitution extends StatelessWidget {
 
                     if(displayName.isNotEmpty && description.isNotEmpty && hoi.isNotEmpty && contactNo.isNotEmpty){
                       if(description.length > 100){
-                        final inst = InstitutionModel(displayName, description, hoi, contactNo, '', '', '', '', '', user!.username);
-                        Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution2(inst))));
+                        final inst = InstitutionModel(displayName, description, hoi, contactNo, '', '', '', '', '', widget.user!.username, '');
+                        Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution2(inst, widget.user))));
                       }else{
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Description must be atleast 50 characters')));
                       }
@@ -111,7 +126,8 @@ class AddInstitution extends StatelessWidget {
 
 class AddInstitution2 extends StatelessWidget {
   InstitutionModel inst;
-  AddInstitution2(this.inst, {super.key});
+  UserModel? user;
+  AddInstitution2(this.inst, this.user, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -164,8 +180,8 @@ class AddInstitution2 extends StatelessWidget {
                     final pincode = pincodeController.text.trim();
 
                     if(shortName.isNotEmpty && landmark.isNotEmpty && city.isNotEmpty && district.isNotEmpty && pincode.isNotEmpty){
-                      final _inst = InstitutionModel(inst.displayName, inst.description, inst.hoi, inst.contactNo, shortName, landmark, city, district, pincode,inst.username);
-                      Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution3(_inst))));
+                      final _inst = InstitutionModel(inst.displayName, inst.description, inst.hoi, inst.contactNo, shortName, landmark, city, district, pincode,inst.username, '');
+                      Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution3(_inst, user))));
                     }else{
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please fill all details')));
                     }
@@ -187,10 +203,11 @@ class AddInstitution2 extends StatelessWidget {
 
 class AddInstitution3 extends StatefulWidget{
   InstitutionModel inst;
-  AddInstitution3(this.inst, {super.key});
+  UserModel? user;
+  AddInstitution3(this.inst, this.user, {super.key});
 
   @override
-  State<AddInstitution3> createState() => _AddInstitution3State(inst);
+  State<AddInstitution3> createState() => _AddInstitution3State(inst, user);
 }
 
 class _AddInstitution3State extends State<AddInstitution3> {
@@ -198,10 +215,11 @@ class _AddInstitution3State extends State<AddInstitution3> {
   // File? _image;
   XFile? _image;
   InstitutionModel inst;
-  _AddInstitution3State(this.inst);
+  UserModel? user;
+  _AddInstitution3State(this.inst, this.user);
 
   Future _getImage() async{
-    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery, maxHeight: 500, maxWidth: 500, imageQuality: 60);
     if(image == null){
       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(('Something went wrong! Please try again')))
@@ -264,8 +282,8 @@ class _AddInstitution3State extends State<AddInstitution3> {
                     // Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution3())));
                   },
                   child: GestureDetector(
-                    onTap: (){
-                      _upload(_image, inst);
+                    onTap: () async{
+                         _upload(_image, inst, user!);
                       
                     },
                     child: PrimaryButton(text: 'Finish',)
@@ -283,19 +301,21 @@ class _AddInstitution3State extends State<AddInstitution3> {
     );
   }
   
-  Future _upload(XFile? image, InstitutionModel inst)async {
-    final path = 'Institutions/${inst.username+inst.shortName}/img/${image!.name}';
-    final file = File(image.path);
+  Future _upload(XFile? image, InstitutionModel inst, UserModel user)async {
+    final path = 'Institutions/${inst.username+inst.shortName}/img/banner';
+    final file = File(image!.path);
 
   try{
     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(('Uploading...')))
                       );
-                    
-    await FirebaseFirestore.instance.collection('Institution').doc(inst.username+inst.shortName).set(inst.toJson());
     await FirebaseStorage.instance.ref().child(path).putFile(file);
+    final url = await FirebaseStorage.instance.ref().child('Institutions/${inst.username+inst.shortName}/img/banner').getDownloadURL();
+    final institution = InstitutionModel(inst.displayName, inst.description, inst.hoi, inst.contactNo, inst.shortName, inst.landmark, inst.city, inst.district, 
+    inst.pincode, inst.username, url);
+    await FirebaseFirestore.instance.collection('Institution').doc(inst.username+inst.shortName).set(institution.toJson());
     
-    Navigator.push(context, MaterialPageRoute(builder: ((context) => YourInstitutions())));
+    Navigator.push(context, MaterialPageRoute(builder: ((context) => YourInstitutions(user: user,))));
     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(('New Institution added')))
                       );

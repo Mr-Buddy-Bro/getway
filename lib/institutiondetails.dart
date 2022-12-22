@@ -1,20 +1,35 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/institution.dart';
+import 'package:getway/data_models/user.dart';
+import 'package:getway/encrypt.dart';
 import 'package:getway/way.dart';
 import 'package:getway/widgets.dart';
 import 'package:page_transition/page_transition.dart';
 
 class InstDetails extends StatefulWidget {
-  const InstDetails({super.key});
+  InstitutionModel? inst;
+  UserModel? user;
+  InstDetails(this.inst, {super.key, this.user});
+  
 
   @override
-  State<InstDetails> createState() => _InstDetailsState();
+  State<InstDetails> createState() => _InstDetailsState(inst, user);
 }
 
 class _InstDetailsState extends State<InstDetails> {
+  InstitutionModel? inst;
+  UserModel? user;
+  User? f_user = FirebaseAuth.instance.currentUser;
+  _InstDetailsState(this.inst, this.user);
+  
+
   @override
   Widget build(BuildContext context) {
+    _addToRecent(inst);
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: ListView(
@@ -59,7 +74,7 @@ class _InstDetailsState extends State<InstDetails> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InstCard(),
+                  InstCard(inst!),
                   SizedBox(height: 20,),
                   TitleText(text: 'More Details'),
                   SizedBox(height: 15,),
@@ -80,17 +95,17 @@ class _InstDetailsState extends State<InstDetails> {
                   SizedBox(height: 20,),
                   TitleText(text: 'Description'),
                   SizedBox(height: 15,),
-                  DescText(text: 'What is a text meme?A meme is a virally transmitted image embellished with text, usually sharing pointed commentary on cultural symbols, social ideas, or current events. A meme is typically a photo or video, although sometimes it can be a block of text.',),
+                  DescText(text: inst!.description,),
                   SizedBox(height: 25,),
                   Text('Head of the Institution', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8,),
-                  Text('Fr. Paul Kaithotunkal', style: TextStyle(fontSize: 18, color: Colors.black54),),
+                  Text(inst!.hoi, style: TextStyle(fontSize: 18, color: Colors.black54),),
                   SizedBox(height: 25,),
                   Text('Contact No.', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8,),
                   Row(
                     children: [
-                      Text('+91 8943194516', style: TextStyle(fontSize: 18, color: Colors.black54),),
+                      Text(inst!.contactNo, style: TextStyle(fontSize: 18, color: Colors.black54),),
                       SizedBox(width: 5,),
                       Icon(Icons.call, size: 18, color: Colors.green,)
                     ],
@@ -98,7 +113,7 @@ class _InstDetailsState extends State<InstDetails> {
                   SizedBox(height: 25,),
                   Text('Address', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8,),
-                  Text('NIMIT,\nPongam, Koratty, Thrissur,\n683581', style: TextStyle(fontSize: 18, color: Colors.black54),),
+                  Text('${inst!.shortName},\n${inst!.landmark}, ${inst!.city}, ${inst!.district},\n${inst!.pincode}', style: TextStyle(fontSize: 18, color: Colors.black54),),
                   SizedBox(height:40,)
                 ],
             ),
@@ -107,5 +122,16 @@ class _InstDetailsState extends State<InstDetails> {
         ],
       ),
     );
+  }
+  
+  _addToRecent(InstitutionModel? inst)async {
+    if(f_user != null){
+      try{
+        await FirebaseFirestore.instance.collection('Users').doc(MyEncrypter().encrypt(user!.username)).collection('RecentVisits').doc(inst!.username+inst!.shortName).set(inst.toJson());
+        print('added');
+      }catch(e){
+        print(e);
+      }
+    }
   }
 }

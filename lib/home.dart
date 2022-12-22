@@ -11,8 +11,11 @@ import 'package:getway/data_models/user.dart';
 import 'package:getway/encrypt.dart';
 import 'package:getway/institutiondetails.dart';
 import 'package:getway/menubar.dart';
+import 'package:getway/network_calls/profilecall.dart';
 import 'package:getway/widgets.dart';
 import 'package:page_transition/page_transition.dart';
+
+import 'data_models/institution.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   UserModel? user = null;
-  final f_user = FirebaseAuth.instance.currentUser;
+  User? f_user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -34,205 +37,236 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (user != null) {
-      print(user!.firstName);
-    }
-
+   
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: ListView(
-        physics: BouncingScrollPhysics(),
-        children: [
-          Stack(
+      body: StreamBuilder(
+        stream: user != null? FirebaseFirestore.instance.collection('Users').doc(MyEncrypter().encrypt(user!.username)).snapshots():null,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          
+          final photoUrl = user != null?snapshot.data['photoUrl']:'';
+          return ListView(
+            physics: BouncingScrollPhysics(),
             children: [
-              Container(
-                decoration: BoxDecoration(
-                    color: Colors.white70,
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20))),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 20.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                    context: context,
-                                    builder: ((context) => MyAalert()));
-                              },
-                              child: Icon(
-                                Icons.exit_to_app_rounded,
-                                size: 25,
-                                color: Color.fromARGB(172, 0, 0, 0),
-                              )),
-                          Image.asset(
-                            'assets/img/logo.png',
-                            scale: 8.0,
+              Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Colors.white54,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20))),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: ((context) => MyAalert()));
+                                  },
+                                  child: Icon(
+                                    Icons.exit_to_app_rounded,
+                                    size: 25,
+                                    color: Color.fromARGB(172, 0, 0, 0),
+                                  )),
+                              Image.asset(
+                                'assets/img/logo.png',
+                                scale: 8.0,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              MenuBar(user: user,)));
+                                },
+                                child: Container(
+                                    width: 40.0,
+                                    height: 40.0,
+                                    decoration: new BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: new DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: new NetworkImage(
+                                                photoUrl.length > 0? photoUrl:'https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg')))),
+                              ),
+                            ],
                           ),
-                          InkWell(
+                        ),
+                        Text(
+                          'Get Way',
+                          style:
+                              TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 60,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // InfoCard() //for signed user
+                  user != null?InfoCard():BannerCard()
+                  // BannerCard() // for signout
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                ),
+                child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InputText(
+                          hint: 'Search Institutions, building etc.',
+                          icon: Icon(Icons.search),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        TitleText(
+                          text: 'Top Institutions',
+                        ),
+                      ],
+                    ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              StreamBuilder(
+                stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if(!snapshot.hasData) return Text('Loading');
+                    List<InstitutionModel> institutions = [];
+                    DocumentSnapshot doc;
+                    for(doc in snapshot.data.docs){
+                      final displayName = doc['displayName'];
+                      final desc = doc['description'];
+                      final hoi = doc['hoi'];
+                      final contactNo = doc['contactNo'];
+                      final shortName = doc['shortName'];
+                      final landmark = doc['landmark'];
+                      final city = doc['city'];
+                      final district = doc['district'];
+                      final pincode = doc['pincode'];
+                      final username = doc['username'];
+                      final photoUrl = doc['photoUrl'];
+      
+                      final inst = InstitutionModel(displayName, desc, hoi, 
+                      contactNo, shortName, landmark, city, district, pincode, 
+                      username, photoUrl);
+                      // if(inst.username == user!.username)
+                      institutions.add(inst);
+                    }
+                  
+                  return Container(
+                    height: 180,
+                    child: PageView.builder(
+                      controller: PageController(
+                          viewportFraction:
+                              MediaQuery.of(context).size.width > 600 ? 0.8 : 0.9),
+                      itemCount: institutions.length,
+                      itemBuilder: (context, index) {
+                        return InkWell(
                             onTap: () {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          MenuBar(user: user)));
+                                      builder: (context) => InstDetails(institutions[index], user: user)));
                             },
-                            child: Container(
-                                width: 40.0,
-                                height: 40.0,
-                                decoration: new BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: new DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image: new AssetImage(
-                                            'assets/img/profile.png')))),
-                          ),
-                        ],
-                      ),
+                            child: TopInstCard(
+                              name: institutions[index].displayName,
+                              image: institutions[index].photoUrl
+                            ));
+                      },
+                      physics: BouncingScrollPhysics(),
                     ),
-                    Text(
-                      'Get Way',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 60,
-                    ),
-                  ],
+                  );
+                }
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: TitleText(
+                  text: 'Nearby',
                 ),
               ),
-              InfoCard() //for signed user
-              // BannerCard() // for signout
+              SizedBox(
+                height: 15,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
+                  builder: ((BuildContext context, AsyncSnapshot snapshot) {
+                    if(!snapshot.hasData) return Text('Loading');
+                    List<InstitutionModel> institutions = [];
+                    DocumentSnapshot doc;
+                    for(doc in snapshot.data.docs){
+                      final displayName = doc['displayName'];
+                      final desc = doc['description'];
+                      final hoi = doc['hoi'];
+                      final contactNo = doc['contactNo'];
+                      final shortName = doc['shortName'];
+                      final landmark = doc['landmark'];
+                      final city = doc['city'];
+                      final district = doc['district'];
+                      final pincode = doc['pincode'];
+                      final username = doc['username'];
+                      final photoUrl = doc['photoUrl'];
+      
+                      final inst = InstitutionModel(displayName, desc, hoi, 
+                      contactNo, shortName, landmark, city, district, pincode, 
+                      username, photoUrl);
+                      // if(inst.username == user!.username)
+                      institutions.add(inst);
+                    }
+                    institutions.sort((a, b) => a.pincode.compareTo(b.pincode),);
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      primary: false,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: MediaQuery.of(context).size.width > 600?4:2,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 8,
+                        childAspectRatio: .8
+                      ),
+                      itemCount: institutions.length,
+                      itemBuilder: (context, index) {                    
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: ((context) => InstDetails(institutions[index], user: user))));
+                          },
+                          child: NearbyInstCard(text: institutions[index].displayName, photoUrl: institutions[index].photoUrl,)
+                        );
+                      },
+                    );
+                  }),
+                  
+                ),
+              )
             ],
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InputText(
-                  hint: 'Search Institutions, building etc.',
-                  icon: Icon(Icons.search),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TitleText(
-                  text: 'Top Institutions',
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            height: 180,
-            child: PageView.builder(
-              controller: PageController(
-                  viewportFraction:
-                      MediaQuery.of(context).size.width > 600 ? 0.8 : 0.9),
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => InstDetails()));
-                    },
-                    child: TopInstCard(
-                      name:
-                          'Naipunnya institute of management and information technology',
-                    ));
-              },
-              physics: BouncingScrollPhysics(),
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: TitleText(
-              text: 'Nearby',
-            ),
-          ),
-          SizedBox(
-            height: 15,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: GridView.builder(
-              shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount:
-                      MediaQuery.of(context).size.width > 600 ? 4 : 2,
-                  childAspectRatio: 0.8,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 10),
-              itemCount: 10,
-              primary: false,
-              itemBuilder: (context, index) {
-                return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => InstDetails()));
-                    },
-                    child: NearbyInstCard(
-                      text: 'Tite ${index + 1} goes here',
-                    ));
-              },
-            ),
-          )
-        ],
+          );
+        }
       ),
     );
   }
-
-  Future _getUser() async {
-    late String email;
-    late String username;
-    late String firstname;
-    late String lastname;
-    late String password;
-    try {
-      await FirebaseFirestore.instance
-          .collection('Users')
-          .get()
-          .then((snapshot) {
-        snapshot.docs.forEach((element) {
-          email = MyEncrypter().decrypt(element.data()['email'].toString());
-          username =
-              MyEncrypter().decrypt(element.data()['username'].toString());
-          firstname =
-              MyEncrypter().decrypt(element.data()['firstname'].toString());
-          lastname =
-              MyEncrypter().decrypt(element.data()['lastname'].toString());
-          password =
-              MyEncrypter().decrypt(element.data()['password'].toString());
-          if (f_user!.email == email) {
-            setState(() {
-              user = UserModel(firstname, lastname, email, username, password);
-            });
-          }
-        });
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: MySnackBar(msg: 'errorr : $e')));
-    }
+  
+  _getUser() async{
+    final muser = f_user != null? await ProfileCall().getUser(context):null;
+    setState(() {
+      user = muser;
+    });
   }
 }

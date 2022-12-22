@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/institution.dart';
 import 'package:getway/institutiondetails.dart';
+import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 
 class LinkText extends StatelessWidget {
@@ -89,14 +91,15 @@ class TitleText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style:TextStyle(fontSize: 20, color: Color.fromARGB(197, 0, 0, 0)));
+    return Text(text, style:TextStyle(fontSize: 20,fontWeight: FontWeight.w500, color: Color.fromARGB(204, 0, 0, 0)));
   }
 }
 
 class TopInstCard extends StatelessWidget {
   final String name;
   final int? count;
-  const TopInstCard({this.count, required this.name, super.key});
+  final String? image;
+  const TopInstCard({this.count, required this.name,this.image, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -107,13 +110,13 @@ class TopInstCard extends StatelessWidget {
         decoration: BoxDecoration(
           boxShadow: <BoxShadow>[
                       BoxShadow(
-                          color: Color.fromARGB(74, 0, 0, 0),
+                          color: Color.fromARGB(0, 0, 0, 0),
                           blurRadius: 8.0,
                           offset: Offset(0.0, 1)
                       ),
                     ],
           borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(image: AssetImage('assets/img/sample_place.jpg',), fit: BoxFit.cover)
+          image: DecorationImage(image: NetworkImage(image!,), fit: BoxFit.cover)
         ),
         child: Container(
           decoration: BoxDecoration(
@@ -150,7 +153,8 @@ class TopInstCard extends StatelessWidget {
 
 class NearbyInstCard extends StatelessWidget {
   final String text;
-  const NearbyInstCard({required this.text, super.key});
+  final String? photoUrl;
+  NearbyInstCard({required this.text, this.photoUrl = null, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +163,7 @@ class NearbyInstCard extends StatelessWidget {
       decoration: BoxDecoration(
          boxShadow: <BoxShadow>[
                       BoxShadow(
-                          color: Color.fromARGB(36, 0, 0, 0),
+                          color: Color.fromARGB(0, 0, 0, 0),
                           blurRadius: 5.0,
                           spreadRadius: 2,
                           offset: Offset(0.0, 0.75)
@@ -168,7 +172,7 @@ class NearbyInstCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         image: DecorationImage(
-          image: AssetImage('assets/img/sample_place.jpg'),
+          image: photoUrl == null? NetworkImage('https://images.pexels.com/photos/573130/pexels-photo-573130.jpeg?cs=srgb&dl=pexels-zulian-yuliansyah-573130.jpg') : NetworkImage(photoUrl!),
           fit: BoxFit.cover
         )
       ),
@@ -293,7 +297,8 @@ class BannerCard extends StatelessWidget {
 }
 
 class InstCard extends StatelessWidget {
-  const InstCard({super.key});
+  InstitutionModel inst;
+  InstCard(this.inst, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -311,7 +316,7 @@ class InstCard extends StatelessWidget {
             children: [
               Container(
                 width: 160,
-                child: Text('Naipunnya Institute of Managment and Information Teechnology', style: TextStyle(fontSize: 18, overflow: TextOverflow.ellipsis), maxLines: 3,)
+                child: Text(inst.displayName, style: TextStyle(fontSize: 18, overflow: TextOverflow.ellipsis), maxLines: 3,)
               ),
               SizedBox(height: 10,),
               Container(
@@ -337,7 +342,7 @@ class InstCard extends StatelessWidget {
             height: 110,
             width: 130,
             decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage('assets/img/sample_place.jpg'), fit: BoxFit.cover),
+              image: DecorationImage(image: NetworkImage(inst.photoUrl), fit: BoxFit.cover),
               borderRadius: BorderRadius.circular(15),
               color: Colors.red
             ),
@@ -554,6 +559,17 @@ class MySnackBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Text(msg),
+    );
+  }
+}
+
+class Loading extends StatelessWidget {
+  const Loading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Center(child: Lottie.asset('assets/lottie/loading.json')),
     );
   }
 }
