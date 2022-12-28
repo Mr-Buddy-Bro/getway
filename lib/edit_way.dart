@@ -30,9 +30,11 @@ class _EditWayState extends State<EditWay> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: StreamBuilder<Object>(
-        stream: FirebaseFirestore.instance.collection('Institution').doc(widget.inst.docId).collection('Rooms').doc(widget.room.docId).snapshots(),
+      body: FutureBuilder<Object>(
+        future: FirebaseFirestore.instance.collection('Institution').doc(widget.inst.docId).collection('Rooms').doc(widget.room.docId).get(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
+
+          if(!snapshot.hasData) return Loading();
           
           final label = snapshot.data['roomLabel'];
           final blockName = snapshot.data['blockName'];
@@ -40,13 +42,27 @@ class _EditWayState extends State<EditWay> {
           final contactNo = snapshot.data['contactNo'];
           final desc = snapshot.data['description'];
 
-          print(label);
-
           label_controller.text = label;
           blockName_controller.text = blockName;
           floor_controller.text = floor;
           contactNo_controller.text = contactNo;
           desc_controller.text = desc;
+
+          label_controller.addListener(()async {
+            updateFeild(widget.inst, widget.room, label_controller.text.trim(), feild: 'roomLabel');
+          },);
+          blockName_controller.addListener(()async {
+            updateFeild(widget.inst, widget.room, blockName_controller.text.trim(), feild: 'blockName');
+          },);
+          floor_controller.addListener(()async {
+            updateFeild(widget.inst, widget.room, floor_controller.text.trim(), feild: 'floor');
+          },);
+          contactNo_controller.addListener(()async {
+            updateFeild(widget.inst, widget.room, contactNo_controller.text.trim(), feild: 'contactNo');
+          },);
+          desc_controller.addListener(()async {
+            updateFeild(widget.inst, widget.room, desc_controller.text.trim(), feild: 'description');
+          },);
 
           return ListView(
             physics: BouncingScrollPhysics(),

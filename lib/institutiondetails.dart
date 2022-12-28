@@ -85,14 +85,14 @@ class _InstDetailsState extends State<InstDetails> {
                       DivCard(image: Image.asset('assets/img/living-room.png', scale: 6,), count: 12, label: 'No. of roomss',),
                     ],
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 25,),
                   InkWell(
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: ((context) => WayScreen())));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Feature will be coming soon'), duration: Duration(milliseconds: 500),));
                     },
-                    child: SpecButton(text: 'Demo')
+                    child: SelectableMenuItem(text: 'Rooms', icon: Icon(Icons.house, color: Colors.black54,))
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 25,),
                   TitleText(text: 'Description'),
                   SizedBox(height: 15,),
                   DescText(text: inst!.description,),

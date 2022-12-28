@@ -219,7 +219,7 @@ class _AddInstitution3State extends State<AddInstitution3> {
   _AddInstitution3State(this.inst, this.user);
 
   Future _getImage() async{
-    final image = await ImagePicker().pickImage(source: ImageSource.gallery, maxHeight: 500, maxWidth: 500, imageQuality: 60);
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery, maxHeight: 600, maxWidth: 600, imageQuality: 60);
     if(image == null){
       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(('Something went wrong! Please try again')))

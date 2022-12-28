@@ -40,6 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    final searchTextController = TextEditingController();
+
+    searchTextController.addListener((() {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Feature will be coming soon'), duration: Duration(milliseconds: 500),));
+    }));
    
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 248, 251, 249),
@@ -144,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: InputText(
                             hint: 'Search Institutions, building etc.',
                             icon: Icon(Icons.search, color: Colors.green,),
+                            controller: searchTextController,
                           ),
                           decoration: BoxDecoration(
                             boxShadow: [
