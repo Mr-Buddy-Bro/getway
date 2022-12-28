@@ -207,7 +207,7 @@ class _MenuBarState extends State<MenuBar> {
                   GestureDetector(
                     onTap: (){
                       // Share.share('Join Get Way');
-                      Share.share('Download GetWay App Now https://play.google.com/store/apps/details?id=com.widecity.getway');
+                      Share.share('Download GetWay App Now: https://play.google.com/store/apps/details?id=com.widecity.getway',);
                       // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Feature will come soon')));
                     },
                     child: SelectableMenuItem(

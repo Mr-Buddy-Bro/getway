@@ -1,17 +1,29 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/institution.dart';
+import 'package:getway/data_models/room.dart';
 import 'package:getway/edit_rooms.dart';
 import 'package:getway/widgets.dart';
 
 class AddRoom extends StatefulWidget {
-  const AddRoom({super.key});
+  InstitutionModel inst;
+  AddRoom(this.inst, {super.key});
 
   @override
   State<AddRoom> createState() => _AddRoomState();
 }
 
 class _AddRoomState extends State<AddRoom> {
+
+  late RoomModel room;
+  final label_controller = TextEditingController();
+  final blockName_controller = TextEditingController();
+  final floor_controller = TextEditingController();
+  final contactNo_controller = TextEditingController();
+  final desc_controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,19 +47,38 @@ class _AddRoomState extends State<AddRoom> {
               children: [
                 Center(child: Text('Please Provide the neccassory\ninformations below', style: TextStyle(fontSize: 18, color: Colors.black45, fontWeight: FontWeight.bold), textAlign: TextAlign.center,)),
                 SizedBox(height: 30,),
-                InputText(hint: 'Label', label: 'Room label',),
+                InputText(hint: 'Label', label: 'Room label', controller: label_controller,),
                 SizedBox(height: 15,),
-                InputText(hint: 'Block', label: 'Block name'),
+                InputText(hint: 'Block', label: 'Block name', controller: blockName_controller,),
                 SizedBox(height: 15,),
-                InputText(hint: 'Floor',  label: 'Floor'),
+                InputText(hint: 'Floor',  label: 'Floor', controller: floor_controller,),
                 SizedBox(height: 15,),
-                InputText(hint: 'Mobile',  label: 'Contact No.'),
+                InputText(hint: 'Mobile',  label: 'Contact No.', controller: contactNo_controller,),
                 SizedBox(height: 15,),
-                InputText(label: 'Description', hint: 'Description',maxLine: 8,),
+                InputText(label: 'Description', hint: 'Description',maxLine: 8, controller: desc_controller,),
                 SizedBox(height: 40,),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context, MaterialPageRoute(builder: ((context) => EditRooms())));
+                  onTap: ()async {
+                    final label = label_controller.text.trim();
+                    final blockName = blockName_controller.text.trim();
+                    final floor = floor_controller.text.trim();
+                    final contactNo = contactNo_controller.text.trim();
+                    final desc = desc_controller.text.trim();
+
+                    if(label.isNotEmpty && blockName.isNotEmpty && floor.isNotEmpty && contactNo.isNotEmpty && desc.isNotEmpty){
+
+                      if(desc.length > 20){
+                        room = RoomModel(label, blockName, floor, contactNo, desc, widget.inst.shortName+label);
+                        await FirebaseFirestore.instance.collection('Institution').doc(widget.inst.docId).collection('Rooms').doc(widget.inst.shortName+label).set(room.toJson());
+                        Navigator.pop(context, MaterialPageRoute(builder: ((context) => EditRooms(widget.inst))));
+                      }else{
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Description should have atleast 20 characters')));
+                      }
+
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please fill all details')));
+                    }
+                    // Navigator.pop(context, MaterialPageRoute(builder: ((context) => EditRooms())));
                   },
                   child: PrimaryButton(text: 'Add Room')
                 )

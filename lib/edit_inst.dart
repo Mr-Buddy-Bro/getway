@@ -160,7 +160,7 @@ class _EditInstState extends State<EditInst> {
                     SizedBox(height: 20,),
                     InkWell(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: ((context) => EditRooms())));
+                        Navigator.push(context, MaterialPageRoute(builder: ((context) => EditRooms(inst))));
                       },
                       child: SelectableMenuItem(text: 'Rooms', icon: Icon(Icons.house, color: Colors.black54,))
                     ),
