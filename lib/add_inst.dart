@@ -100,7 +100,7 @@ class _AddInstitutionState extends State<AddInstitution> {
 
                     if(displayName.isNotEmpty && description.isNotEmpty && hoi.isNotEmpty && contactNo.isNotEmpty){
                       if(description.length > 100){
-                        final inst = InstitutionModel(displayName, description, hoi, contactNo, '', '', '', '', '', widget.user!.username, '');
+                        final inst = InstitutionModel(displayName, description, hoi, contactNo, '', '', '', '', '', widget.user!.username, '', null);
                         Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution2(inst, widget.user))));
                       }else{
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Description must be atleast 50 characters')));
@@ -180,7 +180,7 @@ class AddInstitution2 extends StatelessWidget {
                     final pincode = pincodeController.text.trim();
 
                     if(shortName.isNotEmpty && landmark.isNotEmpty && city.isNotEmpty && district.isNotEmpty && pincode.isNotEmpty){
-                      final _inst = InstitutionModel(inst.displayName, inst.description, inst.hoi, inst.contactNo, shortName, landmark, city, district, pincode,inst.username, '');
+                      final _inst = InstitutionModel(inst.displayName, inst.description, inst.hoi, inst.contactNo, shortName, landmark, city, district, pincode,inst.username, '', null);
                       Navigator.push(context, MaterialPageRoute(builder: ((context) => AddInstitution3(_inst, user))));
                     }else{
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please fill all details')));
@@ -312,7 +312,7 @@ class _AddInstitution3State extends State<AddInstitution3> {
     await FirebaseStorage.instance.ref().child(path).putFile(file);
     final url = await FirebaseStorage.instance.ref().child('Institutions/${inst.username+inst.shortName}/img/banner').getDownloadURL();
     final institution = InstitutionModel(inst.displayName, inst.description, inst.hoi, inst.contactNo, inst.shortName, inst.landmark, inst.city, inst.district, 
-    inst.pincode, inst.username, url);
+    inst.pincode, inst.username, url, inst.username+inst.shortName);
     await FirebaseFirestore.instance.collection('Institution').doc(inst.username+inst.shortName).set(institution.toJson());
     
     Navigator.push(context, MaterialPageRoute(builder: ((context) => YourInstitutions(user: user,))));

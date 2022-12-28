@@ -8,6 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:flutter/services.dart';
 
 import 'home.dart';
+import 'network_calls/profilecall.dart';
 
 Future main()async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        fontFamily: 'OpenSans'
+        fontFamily: 'Roboto'
       ),
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
@@ -80,10 +81,15 @@ class _SplashScreenState extends State<SplashScreen> {
     final user = await FirebaseAuth.instance.currentUser;
       Timer(Duration(seconds: 1),() {
         if(user != null){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen())));
+          getUser();
         }else{
           Navigator.pushReplacement(context, PageTransition(type: PageTransitionType.bottomToTop, child: LoginScreen()));
         }
       });
     }
+    
+      getUser()async {
+        final muser = await ProfileCall().getUser(context);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen(user : muser))));
+      }
 }

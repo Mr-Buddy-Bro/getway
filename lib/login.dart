@@ -1,10 +1,14 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/encrypt.dart';
+import 'package:getway/network_calls/profilecall.dart';
 import 'package:getway/register.dart';
 import 'package:getway/widgets.dart';
+import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 
 import 'home.dart';
@@ -20,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final email_controller = TextEditingController();
   final pass_controller = TextEditingController();
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               SizedBox(height: 10,),
               Image.asset('assets/img/logo.png', scale: 4,),
-              SizedBox(height: 20,),
+              if(loading)Lottie.asset('assets/lottie/loading.json', height: 60)else SizedBox(height: 60,),
               Text('Login', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
               SizedBox(height: 15,),
               Text('Use your\ncredentials to login to your account', textAlign: TextAlign.center, style: TextStyle(fontSize: 16),),
@@ -92,11 +97,15 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(content: MySnackBar(msg: 'Please enter your password'))
       );
     }else{
+      setState(() {
+        loading = true;
+      });
       //sign in
       if(emailOrUsername.contains('@')){
         _signInWithEmailAndPass(emailOrUsername, passsword);
       }else{
         //get email from database for the username
+        _getEmailFromUsername(emailOrUsername, passsword);
       }
     }
 
@@ -106,13 +115,33 @@ class _LoginScreenState extends State<LoginScreen> {
   Future _signInWithEmailAndPass(String email, String pass) async{
     try{
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: pass);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen())));
+      final _user = await ProfileCall().getUser(context);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: ((context) => HomeScreen(user: _user,))));
+      setState(() {
+        loading = false;
+      });
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: MySnackBar(msg: 'Invalid credentials'))
       );
+      setState(() {
+        loading = false;
+      });
+      
     }
     
+  }
+  
+  _getEmailFromUsername(String emailOrUsername, String passsword) async {
+    final ref = FirebaseFirestore.instance.collection('Users').get().then((snapshot){
+      snapshot.docs.forEach((element) { 
+        if(element.id == MyEncrypter().encrypt(emailOrUsername)){
+          final _email = MyEncrypter().decrypt(element['email'].toString());
+          print(_email);
+          _signInWithEmailAndPass(_email, passsword);
+        }
+      });
+    });
   }
 
   

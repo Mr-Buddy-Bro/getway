@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/user.dart';
 import 'package:getway/encrypt.dart';
+import 'package:getway/institutiondetails.dart';
 import 'package:getway/widgets.dart';
 
 import 'data_models/institution.dart';
@@ -40,10 +41,11 @@ class _RecentVisitScreenState extends State<RecentVisitScreen> {
                       final pincode = doc['pincode'];
                       final username = doc['username'];
                       final photoUrl = doc['photoUrl'];
+                      final docId = doc['docId'];
       
                       final inst = InstitutionModel(displayName, desc, hoi, 
                       contactNo, shortName, landmark, city, district, pincode, 
-                      username, photoUrl);
+                      username, photoUrl, docId);
                       // if(inst.username == user!.username)
                       institutions.add(inst);
                     }
@@ -84,7 +86,12 @@ class _RecentVisitScreenState extends State<RecentVisitScreen> {
                             },
                             child: Container(
                               margin: EdgeInsets.only(top: 10),
-                              child: InstCard(institutions[index])
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: ((context) => InstDetails(institutions[index]))));
+                                },
+                                child: InstCard(institutions[index])
+                              )
                             ),
                           );
                         },

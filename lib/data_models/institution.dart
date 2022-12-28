@@ -10,9 +10,10 @@ class InstitutionModel{
   late final String pincode;
   late final String username;
   late final String photoUrl;
+  late final String? docId;
 
   InstitutionModel(String displayName, String description, String hoi, String contactNo, String shortName, 
-  String landmark, String city, String district, String pincode, String username, String photoUrl){
+  String landmark, String city, String district, String pincode, String username, String photoUrl, String? docId){
     this.displayName = displayName;
     this.description = description;
     this.hoi = hoi;
@@ -24,6 +25,7 @@ class InstitutionModel{
     this.pincode = pincode;
     this.username = username;
     this.photoUrl = photoUrl;
+    this.docId = docId;
   }
 
   Map<String, dynamic> toJson() =>{
@@ -38,6 +40,7 @@ class InstitutionModel{
     'pincode':pincode,
     'username':username,
     'photoUrl':photoUrl,
+    'docId':docId,
   };
 
 

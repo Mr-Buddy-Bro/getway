@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/institution.dart';
@@ -59,7 +60,7 @@ class InputText extends StatelessWidget {
           prefixStyle: TextStyle(),
           hintText: hint,
           label: label!=null?Text(label!):null,
-          hintStyle: TextStyle(fontSize: 18, color: Colors.black45,)
+          hintStyle: TextStyle(fontSize: 18, color: Colors.black54,)
         ),
       ),
     );
@@ -91,7 +92,7 @@ class TitleText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style:TextStyle(fontSize: 20,fontWeight: FontWeight.w500, color: Color.fromARGB(204, 0, 0, 0)));
+    return Text(text, style:TextStyle(fontSize: 20,fontWeight: FontWeight.w500, color: Color.fromARGB(255, 34, 67, 24)));
   }
 }
 
@@ -234,7 +235,7 @@ class InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-                margin: EdgeInsets.only(top: 130, right: 30, left: 30),
+                margin: EdgeInsets.only(top: 130, right: 15, left: 15),
                 decoration: BoxDecoration(
                   color : Colors.white,
                   borderRadius: BorderRadius.circular(15),
@@ -253,7 +254,7 @@ class InfoCard extends StatelessWidget {
                           children: [
                             Text('Last visit', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 65, 203, 70)),),
                             SizedBox(height: 5,),
-                            Text('Naipunnya institute of management and information Technology',maxLines: 1, style: TextStyle(fontSize: 16, color: Colors.black87, overflow: TextOverflow.ellipsis,),textAlign: TextAlign.center,),
+                            Text('Naipunnya institute of management and information Technology',maxLines: 1, style: TextStyle(fontSize: 16, color: Colors.black, overflow: TextOverflow.ellipsis,),textAlign: TextAlign.center,),
                             SizedBox(height: 5,),
                             Text('Mon 6:32 pm',maxLines: 1, style: TextStyle(overflow: TextOverflow.ellipsis,),textAlign: TextAlign.center,)
                           ],
@@ -279,8 +280,8 @@ class BannerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
-      margin: EdgeInsets.only(top: 130, right: 30, left: 30),
+      height: 110,
+      margin: EdgeInsets.only(top: 130, right: 15, left: 15),
       decoration: BoxDecoration(
         color : Colors.white,
         borderRadius: BorderRadius.circular(15),
@@ -288,7 +289,7 @@ class BannerCard extends StatelessWidget {
           BoxShadow(blurRadius: 3.0, color: Color.fromARGB(255, 245, 245, 245), spreadRadius: 0.0),
         ],
         image: DecorationImage(
-          image: AssetImage('assets/img/sample_place.jpg',),
+          image: AssetImage('assets/img/banner1.jpg',),
           fit: BoxFit.cover
         )
       ),
@@ -541,8 +542,12 @@ class MyAalert extends StatelessWidget {
       title: Text('Exit!'),
       content: Text('Do you want to exit?'),
       actions: [
-        TextButton(onPressed: (){}, child: Text('No', style: TextStyle(fontSize: 18),), ),
-        TextButton(onPressed: (){}, child: Text('Yes', style: TextStyle(fontSize: 18),), )
+        TextButton(onPressed: (){
+          Navigator.pop(context);
+        }, child: Text('No', style: TextStyle(fontSize: 18),), ),
+        TextButton(onPressed: (){
+          SystemNavigator.pop();
+        }, child: Text('Yes', style: TextStyle(fontSize: 18),), )
       ],
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

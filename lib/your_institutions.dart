@@ -70,6 +70,7 @@ class _YourInstitutionsState extends State<YourInstitutions> {
                 List<InstitutionModel> institutions = [];
                 DocumentSnapshot doc;
                 for(doc in snapshot.data.docs){
+                  final doc_id = doc.id;
                   final displayName = doc['displayName'];
                   final desc = doc['description'];
                   final hoi = doc['hoi'];
@@ -84,7 +85,7 @@ class _YourInstitutionsState extends State<YourInstitutions> {
 
                   final inst = InstitutionModel(displayName, desc, hoi, 
                   contactNo, shortName, landmark, city, district, pincode, 
-                  username, photoUrl);
+                  username, photoUrl, doc_id);
                   if(inst.username == user!.username)
                   institutions.add(inst);
                 }
@@ -98,7 +99,12 @@ class _YourInstitutionsState extends State<YourInstitutions> {
                   ),
                   itemCount: institutions.length,
                   itemBuilder: (context, index) {                    
-                    return NearbyInstCard(text: institutions[index].displayName, photoUrl: institutions[index].photoUrl,);
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: ((context) => EditInst(doc_id: institutions[index].docId))));
+                      },
+                      child: NearbyInstCard(text: institutions[index].displayName, photoUrl: institutions[index].photoUrl,)
+                    );
                   },
                 ):DescText(text: 'You haven\'t added any Institutions yet', alignCenter: true,);
               }),

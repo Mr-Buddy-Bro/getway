@@ -18,33 +18,38 @@ import 'package:page_transition/page_transition.dart';
 import 'data_models/institution.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  UserModel? user;
+  HomeScreen({super.key, this.user=null});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState(user);
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  UserModel? user = null;
+  UserModel? user;
   User? f_user = FirebaseAuth.instance.currentUser;
+  
+  _HomeScreenState(this.user);
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getUser();
+    // _getUser();
   }
 
   @override
   Widget build(BuildContext context) {
    
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Color.fromARGB(255, 248, 251, 249),
       body: StreamBuilder(
         stream: user != null? FirebaseFirestore.instance.collection('Users').doc(MyEncrypter().encrypt(user!.username)).snapshots():null,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          
-          final photoUrl = user != null?snapshot.data['photoUrl']:'';
+          var photoUrl = '';
+          if(snapshot.hasData) {
+            photoUrl = user != null?snapshot.data['photoUrl']:'';
+          }
           return ListView(
             physics: BouncingScrollPhysics(),
             children: [
@@ -52,7 +57,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.white54,
+                      boxShadow: [
+                              BoxShadow(
+                                color: Color.fromARGB(16, 158, 158, 158),
+                                blurRadius: 3,
+                                spreadRadius: .3,
+                                offset: Offset(0, 5)
+                              ),
+                              
+                            ],
+                        color: Color.fromARGB(255, 249, 249, 249),
                         borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(20),
                             bottomRight: Radius.circular(20))),
@@ -117,18 +131,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               SizedBox(
-                height: 20,
+                height: 15,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
+                  horizontal: 15.0,
                 ),
                 child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        InputText(
-                          hint: 'Search Institutions, building etc.',
-                          icon: Icon(Icons.search),
+                        Container(
+                          child: InputText(
+                            hint: 'Search Institutions, building etc.',
+                            icon: Icon(Icons.search, color: Colors.green,),
+                          ),
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color.fromARGB(13, 158, 158, 158),
+                                blurRadius: 3,
+                                spreadRadius: .3,
+                                offset: Offset(0, 2)
+                              ),
+                              
+                            ],
+                            borderRadius: BorderRadius.circular(15)
+                          ),
                         ),
                         SizedBox(
                           height: 20,
@@ -140,64 +168,67 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
               ),
               SizedBox(
-                height: 10,
+                height: 5,
               ),
-              StreamBuilder(
-                stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if(!snapshot.hasData) return Text('Loading');
-                    List<InstitutionModel> institutions = [];
-                    DocumentSnapshot doc;
-                    for(doc in snapshot.data.docs){
-                      final displayName = doc['displayName'];
-                      final desc = doc['description'];
-                      final hoi = doc['hoi'];
-                      final contactNo = doc['contactNo'];
-                      final shortName = doc['shortName'];
-                      final landmark = doc['landmark'];
-                      final city = doc['city'];
-                      final district = doc['district'];
-                      final pincode = doc['pincode'];
-                      final username = doc['username'];
-                      final photoUrl = doc['photoUrl'];
+              Container(
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if(!snapshot.hasData) return Text('Loading');
+                      List<InstitutionModel> institutions = [];
+                      DocumentSnapshot doc;
+                      for(doc in snapshot.data.docs){
+                        final displayName = doc['displayName'];
+                        final desc = doc['description'];
+                        final hoi = doc['hoi'];
+                        final contactNo = doc['contactNo'];
+                        final shortName = doc['shortName'];
+                        final landmark = doc['landmark'];
+                        final city = doc['city'];
+                        final district = doc['district'];
+                        final pincode = doc['pincode'];
+                        final username = doc['username'];
+                        final photoUrl = doc['photoUrl'];
+                        final docId = doc['docId'];
       
-                      final inst = InstitutionModel(displayName, desc, hoi, 
-                      contactNo, shortName, landmark, city, district, pincode, 
-                      username, photoUrl);
-                      // if(inst.username == user!.username)
-                      institutions.add(inst);
-                    }
-                  
-                  return Container(
-                    height: 180,
-                    child: PageView.builder(
-                      controller: PageController(
-                          viewportFraction:
-                              MediaQuery.of(context).size.width > 600 ? 0.8 : 0.9),
-                      itemCount: institutions.length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => InstDetails(institutions[index], user: user)));
-                            },
-                            child: TopInstCard(
-                              name: institutions[index].displayName,
-                              image: institutions[index].photoUrl
-                            ));
-                      },
-                      physics: BouncingScrollPhysics(),
-                    ),
-                  );
-                }
+                        final inst = InstitutionModel(displayName, desc, hoi, 
+                        contactNo, shortName, landmark, city, district, pincode, 
+                        username, photoUrl, docId);
+                        // if(inst.username == user!.username)
+                        institutions.add(inst);
+                      }
+                    
+                    return Container(
+                      height: 180,
+                      child: PageView.builder(
+                        controller: PageController(
+                            viewportFraction:
+                                MediaQuery.of(context).size.width > 600 ? 0.8 : 0.9),
+                        itemCount: institutions.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => InstDetails(institutions[index], user: user)));
+                              },
+                              child: TopInstCard(
+                                name: institutions[index].displayName,
+                                image: institutions[index].photoUrl
+                              ));
+                        },
+                        physics: BouncingScrollPhysics(),
+                      ),
+                    );
+                  }
+                ),
               ),
               SizedBox(
                 height: 10,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: TitleText(
                   text: 'Nearby',
                 ),
@@ -206,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 15,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
                   builder: ((BuildContext context, AsyncSnapshot snapshot) {
@@ -225,10 +256,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       final pincode = doc['pincode'];
                       final username = doc['username'];
                       final photoUrl = doc['photoUrl'];
+                      final docId = doc['docId'];
       
                       final inst = InstitutionModel(displayName, desc, hoi, 
                       contactNo, shortName, landmark, city, district, pincode, 
-                      username, photoUrl);
+                      username, photoUrl, docId);
                       // if(inst.username == user!.username)
                       institutions.add(inst);
                     }

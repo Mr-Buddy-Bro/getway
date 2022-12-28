@@ -127,7 +127,7 @@ class _InstDetailsState extends State<InstDetails> {
   _addToRecent(InstitutionModel? inst)async {
     if(f_user != null){
       try{
-        await FirebaseFirestore.instance.collection('Users').doc(MyEncrypter().encrypt(user!.username)).collection('RecentVisits').doc(inst!.username+inst!.shortName).set(inst.toJson());
+        await FirebaseFirestore.instance.collection('Users').doc(MyEncrypter().encrypt(user!.username)).collection('RecentVisits').doc(inst!.username+inst.shortName).set(inst.toJson());
         print('added');
       }catch(e){
         print(e);

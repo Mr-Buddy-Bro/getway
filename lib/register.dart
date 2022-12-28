@@ -122,8 +122,8 @@ class _RegisterScreen2State extends State<RegisterScreen2> {
                     final email = email_controller.text.toLowerCase().trim();
                     final username = username_controller.text.toLowerCase().trim();
                     if(email.isNotEmpty && username.isNotEmpty){
-                      final user = UserModel(_user.firstName, _user.lastName, email, username, '', '');
-                      Navigator.push(context, PageTransition(child: RegisterScreen3(user: user), type: PageTransitionType.rightToLeft));
+                      checkUsernameExist(email, username);
+                      
                     }else{
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please enter you email and username')));
                     }
@@ -146,6 +146,26 @@ class _RegisterScreen2State extends State<RegisterScreen2> {
         ),
       ),
     );
+  }
+  
+  checkUsernameExist(String email, String username)async {
+
+    await FirebaseFirestore.instance.collection('Users').get().then((value){
+      var exist = false;
+      value.docs.forEach((element) {
+        if(MyEncrypter().decrypt(element['username'].toString()) == username){
+          exist = true;
+        }
+      });
+      if(exist){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Username already exiist! try another username')));
+      }else{
+        final user = UserModel(_user.firstName, _user.lastName, email, username, '', '');
+        Navigator.push(context, PageTransition(child: RegisterScreen3(user: user), type: PageTransitionType.rightToLeft));
+      }
+    });
+
+   
   }
 }
 

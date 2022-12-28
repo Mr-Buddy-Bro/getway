@@ -45,6 +45,7 @@ dependencies:
   image_compression_flutter: ^1.0.2
   lottie: ^2.1.0
   flutter_launcher_icons: ^0.11.0
+  share_plus: ^6.3.0
 
 flutter_icons:
   android: true
@@ -103,6 +104,12 @@ flutter:
         - asset: assets/font/OpenSans-Bold.ttf
         - asset: assets/font/OpenSans-Italic.ttf
         - asset: assets/font/OpenSans-Medium.ttf
+
+    - family: Roboto
+      fonts:
+        - asset: assets/font/Roboto-Regular.ttf
+        - asset: assets/font/Roboto-Bold.ttf
+        - asset: assets/font/Roboto-Medium.ttf
 
     
   #

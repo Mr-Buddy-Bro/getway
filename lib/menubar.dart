@@ -10,11 +10,13 @@ import 'package:getway/profile.dart';
 import 'package:getway/recent_visits.dart';
 import 'package:getway/widgets.dart';
 import 'package:getway/your_institutions.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'network_calls/profilecall.dart';
 
 class MenuBar extends StatefulWidget {
   UserModel? user;
+  
   MenuBar({super.key, this.user = null});
 
   @override
@@ -23,13 +25,15 @@ class MenuBar extends StatefulWidget {
 
 class _MenuBarState extends State<MenuBar> {
   UserModel? user;
-
+  User? f_user;
   _MenuBarState(this.user);
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    f_user = FirebaseAuth.instance.currentUser;
+    if(f_user != null)
     _getUser();
     // FirebaseFirestore.instance.collection('Users').
   }
@@ -203,7 +207,8 @@ class _MenuBarState extends State<MenuBar> {
                   GestureDetector(
                     onTap: (){
                       // Share.share('Join Get Way');
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Feature will come soon')));
+                      Share.share('Download GetWay App Now https://play.google.com/store/apps/details?id=com.widecity.getway');
+                      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Feature will come soon')));
                     },
                     child: SelectableMenuItem(
                       text: 'Refer a friend',
