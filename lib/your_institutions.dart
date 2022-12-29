@@ -10,6 +10,7 @@ import 'package:getway/add_inst.dart';
 import 'package:getway/data_models/institution.dart';
 import 'package:getway/data_models/user.dart';
 import 'package:getway/edit_inst.dart';
+import 'package:getway/my_colors.dart';
 import 'package:getway/widgets.dart';
 
 import 'institutiondetails.dart';
@@ -35,7 +36,7 @@ class _YourInstitutionsState extends State<YourInstitutions> {
           Container(
             padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MyColors().primary,
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20,), bottomRight: Radius.circular(20))
             ),
             child: TitleBar(title: 'Your Institutions',),

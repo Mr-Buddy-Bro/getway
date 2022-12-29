@@ -1,18 +1,46 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/data_models/institution.dart';
+import 'package:getway/data_models/room.dart';
+import 'package:getway/data_models/suggestion.dart';
+import 'package:getway/my_colors.dart';
+import 'package:getway/network_calls/profilecall.dart';
 import 'package:getway/widgets.dart';
 
+import 'data_models/user.dart';
+
 class WayScreen extends StatefulWidget {
-  const WayScreen({super.key});
+  InstitutionModel inst;
+  RoomModel room;
+  
+  WayScreen(this.inst, this.room, {super.key});
 
   @override
   State<WayScreen> createState() => _WayScreenState();
 }
 
 class _WayScreenState extends State<WayScreen> {
+  UserModel? user;
+  _getUser()async{
+    user = await ProfileCall().getUser(context);
+  }
+
+  final sug_controller = TextEditingController();
+  var count = 0;
+
   @override
   Widget build(BuildContext context) {
+
+    sug_controller.addListener(() {
+      setState(() {
+        count = sug_controller.text.length;
+      });
+    },);
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: ListView(
@@ -21,7 +49,7 @@ class _WayScreenState extends State<WayScreen> {
           Container(
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MyColors().primary,
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20,), bottomRight: Radius.circular(20))
             ),
             child: TitleBar(title: 'Way to the zone', subTitle: 'Naipunnya Institute of Management and Information Technology',),
@@ -34,38 +62,41 @@ class _WayScreenState extends State<WayScreen> {
               children: [
                 TitleText(text: 'Flow graph'),
                 SizedBox(height: 20,),
-                BolckCard(blockName: 'Main',),
-                ListView.builder(
-                  primary: false,
-                  shrinkWrap: true,
-                  itemCount: 2,
-                  itemBuilder: (context, index) {
-                    return Center( 
-                      child: Column(
-                        children: [
-                          SizedBox(height: 15,),
-                          Image.asset('assets/img/down.png', scale: 20,),
-                          SizedBox(height: 15,),
-                          Center(child: TraceCard(keyName: 'Floor', value: '2nd',))
-                        ],
-                      ));
-                        
-                  },                 
+                BolckCard(blockName: widget.room.blockName,),
+                Center( 
+                  child: Column(
+                    children: [
+                      SizedBox(height: 15,),
+                      Image.asset('assets/img/down.png', scale: 20, color: MyColors().secondary,),
+                      SizedBox(height: 15,),
+                      Center(child: TraceCard(keyName: 'Floor', value: widget.room.floor,))
+                    ],
+                  )
+                ),
+                Center( 
+                  child: Column(
+                    children: [
+                      SizedBox(height: 15,),
+                      Image.asset('assets/img/down.png', scale: 20, color: MyColors().secondary,),
+                      SizedBox(height: 15,),
+                      Center(child: TraceCard(keyName: 'Room label', value: widget.room.roomLabel,))
+                    ],
+                  )
                 ),
                 SizedBox(height: 30,),
                 TitleText(text: 'Contact No.'),
                 SizedBox(height: 10,),
                 Row(
                   children: [
-                    Text('+91 8943194516', style: TextStyle(fontSize: 18),),
+                    Text(widget.room.contactNo, style: TextStyle(fontSize: 18),),
                     SizedBox(width: 8,),
-                    Icon(Icons.call, size: 22, color: Colors.green,)
+                    Icon(Icons.call, size: 22, color: MyColors().secondary,)
                   ],
                 ),
                 SizedBox(height: 30,),
                 TitleText(text: 'Description'),
                 SizedBox(height: 15,),
-                DescText(text: 'What is a text meme?A meme is a virally transmitted image embellished with text, usually sharing pointed commentary on cultural symbols, social ideas, or current events. A meme is typically a photo or video, although sometimes it can be a block of text.'),
+                DescText(text: widget.room.description),
                 SizedBox(height: 20,),
                 TitleText(text: 'Suggest an update'),
                 SizedBox(height: 15,),
@@ -77,17 +108,34 @@ class _WayScreenState extends State<WayScreen> {
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: TextField(
+                    maxLength: 200,
+                    controller: sug_controller,
                     maxLines: 50,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Type your suggestion here',
                       hintStyle: TextStyle(color: Colors.black45),
-                      counter: Text('0/200', style: TextStyle(color: Colors.black54),)
+                      counter: Text('$count/200', style: TextStyle(color: Colors.black54),)
                     ),
                   ),
                 ),
                 SizedBox(height: 10,),
-                SpecButton(text: 'Submit'),
+                GestureDetector(
+                  onTap: ()async {
+                    final msg = sug_controller.text.trim();
+                    if(msg.isNotEmpty){
+                      if(user != null){
+                        final sug = SuggestionModel(user!.username+widget.inst.shortName+'_sug', msg, user!.firstName+" "+user!.lastName);
+                        await FirebaseFirestore.instance.collection('Institution').doc(widget.inst.docId)
+                        .collection('Suggestions').doc(user!.username+Random().nextInt(8)+'_sug').set(sug.toJson());
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Thanks for your suggestion'), duration: Duration(milliseconds: 1000)));
+                        sug_controller.text = '';
+                      }
+                      
+                    }
+                  },
+                  child: PrimaryButton(text: 'Submit', mini: true,)
+                ),
                 SizedBox(height: 40,)
               ],
             ),

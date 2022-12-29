@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/user.dart';
 import 'package:getway/encrypt.dart';
 import 'package:getway/institutiondetails.dart';
+import 'package:getway/my_colors.dart';
 import 'package:getway/widgets.dart';
 
 import 'data_models/institution.dart';
@@ -54,7 +55,7 @@ class _RecentVisitScreenState extends State<RecentVisitScreen> {
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: MyColors().primary,
                     borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20,), bottomRight: Radius.circular(20))
                   ),
                   child: TitleBar(title: 'Recent visits',),
@@ -62,7 +63,7 @@ class _RecentVisitScreenState extends State<RecentVisitScreen> {
                 SizedBox(height: 30,),
                 DescText(text: 'Your visits in the last 30 days', alignCenter: true,),
                 Padding(
-                  padding: const EdgeInsets.all(30.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

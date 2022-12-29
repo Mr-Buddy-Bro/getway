@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/institution.dart';
 import 'package:getway/edit_rooms.dart';
+import 'package:getway/my_colors.dart';
 import 'package:getway/way.dart';
 import 'package:getway/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -59,7 +60,7 @@ class _EditInstState extends State<EditInst> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
       body: FutureBuilder(
         future: FirebaseFirestore.instance.collection('Institution').doc(widget.doc_id).get(),
         builder: (BuildContext context,AsyncSnapshot snapshot) {
@@ -122,7 +123,7 @@ class _EditInstState extends State<EditInst> {
             Container(
               padding: EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
-                color : Colors.white70,
+                color : MyColors().primary,
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
               ),
               child: Column(

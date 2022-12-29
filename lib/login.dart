@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/encrypt.dart';
+import 'package:getway/my_colors.dart';
 import 'package:getway/network_calls/profilecall.dart';
 import 'package:getway/register.dart';
 import 'package:getway/widgets.dart';
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 246, 246, 246),
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -39,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               SizedBox(height: 10,),
               Image.asset('assets/img/logo.png', scale: 4,),
-              if(loading)Lottie.asset('assets/lottie/loading.json', height: 60)else SizedBox(height: 60,),
+              if(loading)Lottie.asset('assets/lottie/loading.json', height: 50)else SizedBox(height: 50,),
               Text('Login', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
               SizedBox(height: 15,),
               Text('Use your\ncredentials to login to your account', textAlign: TextAlign.center, style: TextStyle(fontSize: 16),),
@@ -72,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: (){
                   Navigator.pushReplacement(context, PageTransition(child: HomeScreen(), type: PageTransitionType.bottomToTop));
                 },
-                child: Text('SKIP',textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54, decoration: TextDecoration.underline),)
+                child: Text('SKIP',textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: MyColors().secondary, decoration: TextDecoration.underline),)
               ),
               SizedBox(height: 50,),
               Center(child: LinkText(text: 'Privacy policy')),

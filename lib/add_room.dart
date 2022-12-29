@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/institution.dart';
 import 'package:getway/data_models/room.dart';
 import 'package:getway/edit_rooms.dart';
+import 'package:getway/my_colors.dart';
 import 'package:getway/widgets.dart';
 
 class AddRoom extends StatefulWidget {
@@ -34,7 +35,7 @@ class _AddRoomState extends State<AddRoom> {
           Container(
             padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MyColors().primary,
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20,), bottomRight: Radius.circular(20))
             ),
             child: TitleBar(title: 'New Room', subTitle: 'Naipunnya Institute of Management and Information Technology',),

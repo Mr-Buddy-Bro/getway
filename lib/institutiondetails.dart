@@ -6,9 +6,12 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/institution.dart';
 import 'package:getway/data_models/user.dart';
 import 'package:getway/encrypt.dart';
+import 'package:getway/rooms_list.dart';
 import 'package:getway/way.dart';
 import 'package:getway/widgets.dart';
 import 'package:page_transition/page_transition.dart';
+
+import 'my_colors.dart';
 
 class InstDetails extends StatefulWidget {
   InstitutionModel? inst;
@@ -40,7 +43,7 @@ class _InstDetailsState extends State<InstDetails> {
               Container(
                 height: 100,
                 decoration: BoxDecoration(
-                  color : Colors.white70,
+                  color : MyColors().primary,
                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
                 ),
                 child: Column(
@@ -56,15 +59,15 @@ class _InstDetailsState extends State<InstDetails> {
                 decoration: BoxDecoration(
                   boxShadow: <BoxShadow>[
                     BoxShadow(
-                      color: Color.fromARGB(11, 0, 0, 0),
-                      blurRadius: 5,
-                      spreadRadius: 1
+                      color: Color.fromARGB(21, 0, 255, 68),
+                      blurRadius: .2,
+                      spreadRadius: .3
                     )
                   ],
                   borderRadius: BorderRadius.circular(15)
                 ),
                 margin: EdgeInsets.only(left: 20, right: 20, top: 80),
-                child: InputText(hint: 'find the zone', icon: Icon(Icons.search_rounded),)
+                child: InputText(hint: 'find the zone', icon: Icon(Icons.search_rounded, color: MyColors().primary,),)
               )
             ],
           ),
@@ -88,9 +91,10 @@ class _InstDetailsState extends State<InstDetails> {
                   SizedBox(height: 25,),
                   InkWell(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Feature will be coming soon'), duration: Duration(milliseconds: 500),));
+                      Navigator.push(context, MaterialPageRoute(builder: ((context) => RoomsList(inst!))));
+                      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Feature will be coming soon'), duration: Duration(milliseconds: 500),));
                     },
-                    child: SelectableMenuItem(text: 'Rooms', icon: Icon(Icons.house, color: Colors.black54,))
+                    child: SelectableMenuItem(text: 'Rooms', icon: Icon(Icons.house, color: MyColors().secondary,))
                   ),
                   SizedBox(height: 25,),
                   TitleText(text: 'Description'),
@@ -107,7 +111,7 @@ class _InstDetailsState extends State<InstDetails> {
                     children: [
                       Text(inst!.contactNo, style: TextStyle(fontSize: 18, color: Colors.black54),),
                       SizedBox(width: 5,),
-                      Icon(Icons.call, size: 18, color: Colors.green,)
+                      Icon(Icons.call, size: 18, color: MyColors().secondary,)
                     ],
                   ),
                   SizedBox(height: 25,),

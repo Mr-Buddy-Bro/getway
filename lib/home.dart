@@ -16,6 +16,7 @@ import 'package:getway/widgets.dart';
 import 'package:page_transition/page_transition.dart';
 
 import 'data_models/institution.dart';
+import 'my_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   UserModel? user;
@@ -72,15 +73,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               
                             ],
-                        color: Color.fromARGB(255, 249, 249, 249),
+                        color: MyColors().primary,
                         borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20))),
+                            bottomLeft: Radius.circular(15),
+                            bottomRight: Radius.circular(15))),
                     child: Column(
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 20.0),
+                              horizontal: 20.0, vertical: 15.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -93,11 +94,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Icon(
                                     Icons.exit_to_app_rounded,
                                     size: 25,
-                                    color: Color.fromARGB(172, 0, 0, 0),
+                                    color: Color.fromARGB(255, 255, 255, 255),
                                   )),
                               Image.asset(
-                                'assets/img/logo.png',
-                                scale: 8.0,
+                                'assets/img/logo_white.png',
+                                width: 50,
                               ),
                               InkWell(
                                 onTap: () {
@@ -123,16 +124,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Get Way',
                           style:
-                              TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         SizedBox(
-                          height: 60,
+                          height: 50,
                         ),
                       ],
                     ),
                   ),
                   // InfoCard() //for signed user
-                  user != null?InfoCard():BannerCard()
+                  // user != null?InfoCard():BannerCard()
+                  BannerCard()
                   // BannerCard() // for signout
                 ],
               ),
@@ -155,10 +157,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
-                                color: Color.fromARGB(13, 158, 158, 158),
-                                blurRadius: 3,
+                                color: Color.fromARGB(12, 0, 255, 26),
+                                blurRadius: 1,
                                 spreadRadius: .3,
-                                offset: Offset(0, 2)
+                                offset: Offset(0, 3)
                               ),
                               
                             ],
@@ -235,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 10,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: TitleText(
                   text: 'Nearby',
                 ),
@@ -244,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 15,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
                   builder: ((BuildContext context, AsyncSnapshot snapshot) {

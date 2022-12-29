@@ -8,14 +8,15 @@ import 'package:page_transition/page_transition.dart';
 import 'package:flutter/services.dart';
 
 import 'home.dart';
+import 'my_colors.dart';
 import 'network_calls/profilecall.dart';
 
 Future main()async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.grey[100],
-    statusBarIconBrightness: Brightness.dark
+    statusBarColor: MyColors().primary,
+    statusBarIconBrightness: Brightness.light
   ));
   runApp(const MyApp());
 }
@@ -62,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           SizedBox(width: 50, height: 100,),
           Center(
-            child: Image.asset('assets/img/logo.png', width: 150,),
+            child: Image.asset('assets/img/logo_light.png', width: 250,),
           ),
           Column(
             children: [

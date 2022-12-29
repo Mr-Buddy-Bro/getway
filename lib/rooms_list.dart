@@ -7,19 +7,21 @@ import 'package:getway/data_models/institution.dart';
 import 'package:getway/data_models/room.dart';
 import 'package:getway/edit_way.dart';
 import 'package:getway/my_colors.dart';
+import 'package:getway/way.dart';
 import 'package:getway/widgets.dart';
 
-class EditRooms extends StatefulWidget {
+class RoomsList extends StatefulWidget {
   InstitutionModel inst;
-  EditRooms(this.inst, {super.key});
+  RoomsList(this.inst, {super.key});
 
   @override
-  State<EditRooms> createState() => _EditRoomsState();
+  State<RoomsList> createState() => _RoomsListState();
 }
 
-class _EditRoomsState extends State<EditRooms> {
+class _RoomsListState extends State<RoomsList> {
 
-  late List<RoomModel> rooms;
+  List<RoomModel> rooms = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,25 +49,14 @@ class _EditRoomsState extends State<EditRooms> {
             child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: ((context) => AddRoom(widget.inst))));
-                      },
-                      child: PrimaryButton(text: 'Add+', mini: true,)
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10,),
+                
+                SizedBox(height: 15,),
                 TitleText(text: 'All Rooms'),
                 SizedBox(height: 20,),
                 StreamBuilder(
                   stream: FirebaseFirestore.instance.collection('Institution').doc(widget.inst.docId).collection('Rooms').snapshots(),
                   builder: (BuildContext context,AsyncSnapshot snapshot) {
                     if(!snapshot.hasData) return Loading();
-                    rooms = [];
                     DocumentSnapshot doc;
 
                       for(doc in snapshot.data.docs){
@@ -86,7 +77,7 @@ class _EditRoomsState extends State<EditRooms> {
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: ((context) => EditWay(widget.inst, rooms[index]))));
+                            Navigator.push(context, MaterialPageRoute(builder: ((context) => WayScreen(widget.inst, rooms[index]))));
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -106,7 +97,8 @@ class _EditRoomsState extends State<EditRooms> {
             ),
           ),
           SizedBox(height: 20,),
-          Center( child: DescText(text: 'Click on Add+ button\nto add a new room', alignCenter: true,))
+          
+          Center( child: DescText(text: 'Rooms in this\ninstitution will show here', alignCenter: true,))
         ],
       ),
     );

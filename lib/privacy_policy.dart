@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:getway/my_colors.dart';
 import 'package:getway/widgets.dart';
 
 class PrivacyPolicy extends StatelessWidget {
@@ -19,7 +20,7 @@ class PrivacyPolicy extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MyColors().primary,
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20,), bottomRight: Radius.circular(20))
             ),
             child: TitleBar(title: 'Privacy & policy',),

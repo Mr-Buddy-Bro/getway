@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/user.dart';
 import 'package:getway/login.dart';
+import 'package:getway/my_colors.dart';
 import 'package:getway/privacy_policy.dart';
 import 'package:getway/profile.dart';
 import 'package:getway/recent_visits.dart';
@@ -48,7 +49,7 @@ class _MenuBarState extends State<MenuBar> {
           physics: BouncingScrollPhysics(),
           children: [
             SizedBox(
-              height: 40,
+              height: 20,
             ),
             Container(
               width: double.infinity,
@@ -61,12 +62,13 @@ class _MenuBarState extends State<MenuBar> {
                       child: Icon(
                         Icons.arrow_back_ios_new_rounded,
                         size: 20,
+                        color: MyColors().secondary,
                       )),
                 ],
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 30,
             ),
             GestureDetector(
               onTap: () {
@@ -80,58 +82,60 @@ class _MenuBarState extends State<MenuBar> {
                         MaterialPageRoute(
                             builder: ((context) => ProfileScreen(user: user))));
               },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                          width: 90.0,
-                          height: 90.0,
-                          decoration: new BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: new DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: new NetworkImage(user != null? user!
-                                              .photoUrl.length >
-                                          0
-                                      ? user!.photoUrl
-                                      : 'https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg':'https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg')))),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SpecButton(
-                        text: user != null ? 'Profile' : 'Log In',
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                          user != null
-                              ? user!.username.toUpperCase()
-                              : 'Username'.toUpperCase(),
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                          user != null
-                              ? user!.email
-                              : 'name@example.com'.toLowerCase(),
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Color.fromARGB(218, 92, 182, 95))),
-                    ],
-                  )
-                ],
+              child: Container(
+                decoration: BoxDecoration(
+                  color: MyColors().primary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                            width: 90.0,
+                            height: 90.0,
+                            decoration: new BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: new DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: new NetworkImage(user != null? user!
+                                                .photoUrl.length >
+                                            0
+                                        ? user!.photoUrl
+                                        : 'https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg':'https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg')))),
+                       
+                       
+                      ],
+                    ),
+                    SizedBox(width: 15,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        
+                        Text(
+                            user != null
+                                ? user!.username.toUpperCase()
+                                : 'Username'.toUpperCase(),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                            user != null
+                                ? user!.email
+                                : 'name@example.com'.toLowerCase(),
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(218, 255, 255, 255))),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
             SizedBox(
@@ -152,7 +156,7 @@ class _MenuBarState extends State<MenuBar> {
                       },
                     child: SelectableMenuItem(
                       text: 'Recent visits',
-                      icon: Icon(Icons.loop_rounded),
+                      icon: Icon(Icons.loop_rounded, color: MyColors().secondary,),
                     ),
                   ),
                   SizedBox(
@@ -175,7 +179,7 @@ class _MenuBarState extends State<MenuBar> {
                       },
                       child: SelectableMenuItem(
                         text: 'Your institutions',
-                        icon: Icon(Icons.house),
+                        icon: Icon(Icons.house, color: MyColors().secondary,),
                       )),
                   SizedBox(
                     height: 10,
@@ -196,7 +200,7 @@ class _MenuBarState extends State<MenuBar> {
                     },
                     child: SelectableMenuItem(
                       text: 'Privacy policy',
-                      icon: Icon(Icons.privacy_tip_rounded),
+                      icon: Icon(Icons.privacy_tip_rounded, color: MyColors().secondary,),
                     ),
                   ),
                   SizedBox(

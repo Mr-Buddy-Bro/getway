@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/institution.dart';
 import 'package:getway/institutiondetails.dart';
+import 'package:getway/my_colors.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -39,7 +41,7 @@ class InputText extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: Color.fromARGB(255, 255, 255, 255)
+        color: MyColors().inputText
       ),
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
@@ -50,7 +52,7 @@ class InputText extends StatelessWidget {
         obscureText: pass,
         textAlignVertical: TextAlignVertical.center,
         style: TextStyle(fontSize: 18, overflow: TextOverflow.ellipsis,),
-        cursorColor: Colors.green,
+        cursorColor: MyColors().primary,
         showCursor: true,
         cursorWidth:1.0,
         keyboardType: email?TextInputType.emailAddress:TextInputType.text,
@@ -60,7 +62,7 @@ class InputText extends StatelessWidget {
           prefixStyle: TextStyle(),
           hintText: hint,
           label: label!=null?Text(label!):null,
-          hintStyle: TextStyle(fontSize: 18, color: Colors.black54,)
+          hintStyle: TextStyle(fontSize: 18, color: Color.fromARGB(144, 0, 0, 0),)
         ),
       ),
     );
@@ -76,12 +78,12 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 76, 194, 80),
+        color: MyColors().primary,
         borderRadius: BorderRadius.circular(50)
       ),
       padding: EdgeInsets.symmetric(vertical: mini?10:15, horizontal: mini?20:30),
       width: mini?null:double.infinity,
-      child: Text(text, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center,),
+      child: Text(text, style: TextStyle(fontSize: mini?18:20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center,),
     );
   }
 }
@@ -214,14 +216,14 @@ class TitleBar extends StatelessWidget {
                 onTap: (){
                   Navigator.pop(context);
                 },
-                child: Icon(Icons.arrow_back_ios_new_rounded, size: 20,)
+                child: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: Colors.white,)
               ),
               SizedBox(width: 30,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(width: 300, child: Text(title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),)),
-                  subTitle != null? Container(width: 300, child: Text(subTitle!, style: TextStyle(fontSize: 16, color: Colors.black54, overflow: TextOverflow.ellipsis),)):SizedBox(),
+                  Container(width: 300, child: Text(title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis, color: Colors.white),)),
+                  subTitle != null? Container(width: 300, child: Text(subTitle!, style: TextStyle(fontSize: 16, color: Colors.white, overflow: TextOverflow.ellipsis),)):SizedBox(),
                 ],
               ),
             ],
@@ -235,12 +237,12 @@ class InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-                margin: EdgeInsets.only(top: 130, right: 15, left: 15),
+                margin: EdgeInsets.only(top: 115, right: 15, left: 15),
                 decoration: BoxDecoration(
                   color : Colors.white,
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
-                    BoxShadow(blurRadius: 3.0, color: Color.fromARGB(255, 245, 245, 245), spreadRadius: 0.0),
+                    BoxShadow(blurRadius: 3.0, color: Color.fromARGB(32, 0, 255, 30), spreadRadius: 0.0),
                   ]
                 ),
                 child: Row(
@@ -274,26 +276,43 @@ class InfoCard extends StatelessWidget {
   }
 }
 
-class BannerCard extends StatelessWidget {
-  const BannerCard({super.key});
+class BannerCard extends StatefulWidget {
+  BannerCard({super.key});
 
   @override
+  State<BannerCard> createState() => _BannerCardState();
+}
+
+class _BannerCardState extends State<BannerCard> {
+  String bannerUrl = '';
+  @override
   Widget build(BuildContext context) {
+
+     
+    _getBanner();
+
     return Container(
       height: 110,
-      margin: EdgeInsets.only(top: 130, right: 15, left: 15),
+      margin: EdgeInsets.only(top: 115, right: 15, left: 15),
       decoration: BoxDecoration(
         color : Colors.white,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
-          BoxShadow(blurRadius: 3.0, color: Color.fromARGB(255, 245, 245, 245), spreadRadius: 0.0),
+          BoxShadow(blurRadius: 3.0, color: Color.fromARGB(53, 1, 255, 31), spreadRadius: 0.0),
         ],
         image: DecorationImage(
-          image: AssetImage('assets/img/banner1.jpg',),
+          image: NetworkImage(bannerUrl,),
           fit: BoxFit.cover
         )
       ),
     );
+  }
+
+  _getBanner() async{
+    final url = await FirebaseStorage.instance.ref().child('Common/banner.jpg').getDownloadURL();
+    setState(() {
+      bannerUrl = url;
+    });
   }
 }
 
@@ -305,7 +324,7 @@ class InstCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MyColors().primary,
         borderRadius: BorderRadius.circular(20)
       ),
       padding: EdgeInsets.only(left: 20,top: 8, right: 8, bottom: 8),
@@ -317,7 +336,7 @@ class InstCard extends StatelessWidget {
             children: [
               Container(
                 width: 160,
-                child: Text(inst.displayName, style: TextStyle(fontSize: 18, overflow: TextOverflow.ellipsis), maxLines: 3,)
+                child: Text(inst.displayName, style: TextStyle(fontSize: 18, overflow: TextOverflow.ellipsis, color: Colors.white), maxLines: 3,)
               ),
               SizedBox(height: 10,),
               Container(
@@ -345,7 +364,7 @@ class InstCard extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(image: NetworkImage(inst.photoUrl), fit: BoxFit.cover),
               borderRadius: BorderRadius.circular(15),
-              color: Colors.red
+              color: Color.fromARGB(255, 255, 255, 255)
             ),
           )
         ],
@@ -411,11 +430,11 @@ class SpecButton extends StatelessWidget {
                       )
         ],
         borderRadius: BorderRadius.circular(5),
-        color: warning? Color.fromARGB(255, 255, 237, 237): Color.fromRGBO(241, 255, 242, 1)
+        color: warning? Color.fromARGB(255, 255, 237, 237): Color.fromARGB(95, 241, 255, 242)
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 10),
-        child: Text(text, style: TextStyle(color: warning? Color.fromARGB(255, 186, 43, 33): Colors.green, fontWeight: FontWeight.bold, fontSize: 16),textAlign: TextAlign.center,),
+        child: Text(text, style: TextStyle(color: warning? Color.fromARGB(255, 186, 43, 33): Color.fromARGB(255, 255, 255, 255), fontWeight: FontWeight.bold, fontSize: 16),textAlign: TextAlign.center,),
       ),
     );
   }
@@ -439,7 +458,7 @@ class SelectableMenuItem extends StatelessWidget {
             TitleText(text: text)
           ],
         ),
-        arrow?Icon(Icons.arrow_forward_ios_rounded, size: 18,):SizedBox()
+        arrow?Icon(Icons.arrow_forward_ios_rounded, size: 18, color: MyColors().secondary,):SizedBox()
       ],
     );
   }
