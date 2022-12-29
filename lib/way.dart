@@ -25,15 +25,14 @@ class WayScreen extends StatefulWidget {
 
 class _WayScreenState extends State<WayScreen> {
   UserModel? user;
-  _getUser()async{
-    user = await ProfileCall().getUser(context);
-  }
 
   final sug_controller = TextEditingController();
   var count = 0;
 
   @override
   Widget build(BuildContext context) {
+
+      _getUser();
 
     sug_controller.addListener(() {
       setState(() {
@@ -125,13 +124,16 @@ class _WayScreenState extends State<WayScreen> {
                     final msg = sug_controller.text.trim();
                     if(msg.isNotEmpty){
                       if(user != null){
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Sending'), duration: Duration(milliseconds: 1000)));
                         final sug = SuggestionModel(user!.username+widget.inst.shortName+'_sug', msg, user!.firstName+" "+user!.lastName);
-                        await FirebaseFirestore.instance.collection('Institution').doc(widget.inst.docId)
-                        .collection('Suggestions').doc(user!.username+Random().nextInt(8)+'_sug').set(sug.toJson());
+                        await FirebaseFirestore.instance.collection('Institution').doc(widget.inst.docId).collection('Rooms').doc(widget.room.docId)
+                        .collection('Suggestions').doc(widget.room.roomLabel+Random().nextInt(8).toString()+'_sug').set(sug.toJson());
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Thanks for your suggestion'), duration: Duration(milliseconds: 1000)));
                         sug_controller.text = '';
                       }
                       
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Type your suggestion first'), duration: Duration(milliseconds: 1000)));
                     }
                   },
                   child: PrimaryButton(text: 'Submit', mini: true,)
@@ -143,6 +145,10 @@ class _WayScreenState extends State<WayScreen> {
         ],
       ),
     );
+  }
+    _getUser()async{
+    print('user');
+    user = await ProfileCall().getUser(context);
   }
 }
 

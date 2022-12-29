@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/institution.dart';
+import 'package:getway/data_models/room.dart';
 import 'package:getway/data_models/user.dart';
 import 'package:getway/encrypt.dart';
 import 'package:getway/rooms_list.dart';
@@ -26,13 +27,28 @@ class InstDetails extends StatefulWidget {
 class _InstDetailsState extends State<InstDetails> {
   InstitutionModel? inst;
   UserModel? user;
+  List<RoomModel> t_rooms = [];
+  List<RoomModel> rooms = [];
+  final searchTextController = TextEditingController();
   User? f_user = FirebaseAuth.instance.currentUser;
   _InstDetailsState(this.inst, this.user);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getAllRooms();
+  }
   
 
   @override
   Widget build(BuildContext context) {
     _addToRecent(inst);
+
+    searchTextController.addListener((() {
+        searchInst(searchTextController.text.trim());
+    }));
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: ListView(
@@ -50,7 +66,7 @@ class _InstDetailsState extends State<InstDetails> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
-                      child: TitleBar(title: 'Instituttion details',)
+                      child: TitleBar(title: 'Institution details',)
                     ),
                   ],
                 ),
@@ -67,7 +83,7 @@ class _InstDetailsState extends State<InstDetails> {
                   borderRadius: BorderRadius.circular(15)
                 ),
                 margin: EdgeInsets.only(left: 20, right: 20, top: 80),
-                child: InputText(hint: 'find the zone', icon: Icon(Icons.search_rounded, color: MyColors().primary,),)
+                child: InputText(hint: 'find the zone', icon: Icon(Icons.search_rounded, color: MyColors().primary,), controller: searchTextController,)
               )
             ],
           ),
@@ -77,6 +93,28 @@ class _InstDetailsState extends State<InstDetails> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
+                  rooms.length > 0? Column(
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: rooms.length,
+                        itemBuilder: ((context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: ((context) => WayScreen(widget.inst!, rooms[index]))));
+                              },
+                              child: ListTile(tileColor: Colors.grey[200],shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), title: Text(rooms[index].roomLabel),)
+                            ),
+                          );
+                        }),
+                      ),
+                      SizedBox(height: 20,),
+                    ],
+                  ):SizedBox(),
+
                   InstCard(inst!),
                   SizedBox(height: 20,),
                   TitleText(text: 'More Details'),
@@ -84,8 +122,8 @@ class _InstDetailsState extends State<InstDetails> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      DivCard(image: Image.asset('assets/img/skyscraper.png', scale: 6,), count: 3, label: 'No. of blocks',),
-                      DivCard(image: Image.asset('assets/img/living-room.png', scale: 6,), count: 12, label: 'No. of roomss',),
+                      DivCard(image: Image.asset('assets/img/skyscraper.png', scale: 6,), count: widget.inst!.shortName, label: 'Short name',),
+                      DivCard(image: Image.asset('assets/img/living-room.png', scale: 6,), count: t_rooms.length.toString(), label: 'No. of rooms',),
                     ],
                   ),
                   SizedBox(height: 25,),
@@ -137,5 +175,57 @@ class _InstDetailsState extends State<InstDetails> {
         print(e);
       }
     }
+  }
+  
+  searchInst(String text)async {
+    if(text.length < 2){
+       setState(() {
+           rooms.clear();
+        });
+    }else{
+    List<RoomModel> _room = [];
+    await FirebaseFirestore.instance.collection('Institution').doc(widget.inst!.docId).collection('Rooms').get().then((snapshot) {
+      snapshot.docs.forEach((element) {
+        final String roomName = element.data()['roomLabel'].toString().toLowerCase();
+        print(text);
+        if(roomName.contains(text.toLowerCase())){
+          
+          final String roomLabel = element.data()['roomLabel'].toString();
+          final String description = element.data()['description'].toString();
+          final String contactNo = element.data()['contactNo'].toString();
+          final String docId = element.data()['docId'].toString();
+          final String blockName = element.data()['blockName'].toString();
+          final String floor = element.data()['floor'].toString();
+          print(roomLabel);
+          final room = RoomModel(roomLabel, blockName, floor, contactNo, description, docId);
+          _room.add(room);
+         
+        }
+      });
+    });
+    
+    
+    setState(() {
+      rooms = _room;
+      
+    });
+    }
+  }
+  
+  _getAllRooms()async {
+      await FirebaseFirestore.instance.collection('Institution').doc(widget.inst!.docId).collection('Rooms').get().then((snapshot) {
+        snapshot.docs.forEach((element) {
+          final String roomLabel = element.data()['roomLabel'].toString();
+          final String description = element.data()['description'].toString();
+          final String contactNo = element.data()['contactNo'].toString();
+          final String docId = element.data()['docId'].toString();
+          final String blockName = element.data()['blockName'].toString();
+          final String floor = element.data()['floor'].toString();
+          final room = RoomModel(roomLabel, blockName, floor, contactNo, description, docId);
+          setState(() {
+            t_rooms.add(room);
+          });
+        });
+      });
   }
 }

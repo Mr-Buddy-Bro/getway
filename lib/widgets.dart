@@ -375,7 +375,7 @@ class InstCard extends StatelessWidget {
 
 class DivCard extends StatelessWidget {
   final Image image;
-  final int count;
+  final String count;
   final String label;
   const DivCard({required this.image, required this.count, required this.label, super.key});
 
@@ -558,15 +558,15 @@ class MyAalert extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.spaceEvenly,
-      title: Text('Exit!'),
+      title: Text('Exit!', style: TextStyle(color: Colors.redAccent),),
       content: Text('Do you want to exit?'),
       actions: [
         TextButton(onPressed: (){
           Navigator.pop(context);
-        }, child: Text('No', style: TextStyle(fontSize: 18),), ),
+        }, child: Text('No', style: TextStyle(fontSize: 18, color: Colors.green),), ),
         TextButton(onPressed: (){
           SystemNavigator.pop();
-        }, child: Text('Yes', style: TextStyle(fontSize: 18),), )
+        }, child: Text('Yes', style: TextStyle(fontSize: 18, color: Colors.green),),),
       ],
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

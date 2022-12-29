@@ -28,6 +28,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   UserModel? user;
+  List<InstitutionModel> institutions = [];
+  final searchTextController = TextEditingController();
   User? f_user = FirebaseAuth.instance.currentUser;
   
   _HomeScreenState(this.user);
@@ -42,11 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final searchTextController = TextEditingController();
-
     searchTextController.addListener((() {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Feature will be coming soon'), duration: Duration(milliseconds: 500),));
+        searchInst(searchTextController.text.trim());
     }));
+
+     
    
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 248, 251, 249),
@@ -170,6 +172,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(
                           height: 20,
                         ),
+                        institutions.length > 0? Column(
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: institutions.length,
+                              itemBuilder: ((context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: ((context) => InstDetails(institutions[index]))));
+                                    },
+                                    child: ListTile(tileColor: Colors.grey[200],shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), title: Text(institutions[index].displayName + " - "+institutions[index].shortName),)
+                                  ),
+                                );
+                              }),
+                            ),
+                            SizedBox(height: 20,),
+                          ],
+                        ):SizedBox(),
+                        
                         TitleText(
                           text: 'Top Institutions',
                         ),
@@ -309,5 +332,45 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       user = muser;
     });
+  }
+  
+  searchInst(String text)async{
+    if(text.length < 2){
+       setState(() {
+           institutions.clear();
+        });
+    }else{
+    List<InstitutionModel> _institution = [];
+    await FirebaseFirestore.instance.collection('Institution').get().then((snapshot) {
+      snapshot.docs.forEach((element) {
+        final String instName = element.data()['displayName'].toString().toLowerCase();
+        print(text);
+        if(instName.contains(text.toLowerCase())){
+          final String displayName = element.data()['displayName'].toString();
+          final String description = element.data()['description'].toString();
+          final String hoi = element.data()['hoi'].toString();
+          final String contactNo = element.data()['contactNo'].toString();
+          final String shortName = element.data()['shortName'].toString();
+          final String landmark = element.data()['landmark'].toString();
+          final String city = element.data()['city'].toString();
+          final String district = element.data()['district'].toString();
+          final String pincode = element.data()['pincode'].toString();
+          final String username = element.data()['username'].toString();
+          final String photoUrl = element.data()['photoUrl'].toString();
+          final String docId = element.data()['docId'].toString();
+          final inst = InstitutionModel(displayName, description, hoi, contactNo, shortName, landmark, city, 
+                        district, pincode, username, photoUrl, docId);
+          _institution.add(inst);
+         
+        }
+      });
+    });
+    
+    
+    setState(() {
+      institutions = _institution;
+      
+    });
+    }
   }
 }
