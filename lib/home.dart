@@ -33,12 +33,17 @@ class _HomeScreenState extends State<HomeScreen> {
   User? f_user = FirebaseAuth.instance.currentUser;
   
   _HomeScreenState(this.user);
+  
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // _getUser();
+    
+    if(f_user != null){
+      _getUser();
+    }
+    
   }
 
   @override
@@ -47,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
     searchTextController.addListener((() {
         searchInst(searchTextController.text.trim());
     }));
-
      
    
     return Scaffold(
@@ -83,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 15.0),
+                              horizontal: 20.0, vertical: 10.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -129,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         SizedBox(
-                          height: 50,
+                          height: 40,
                         ),
                       ],
                     ),
@@ -153,14 +157,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         Container(
                           child: InputText(
                             hint: 'Search Institutions, building etc.',
-                            icon: Icon(Icons.search, color: Colors.green,),
+                            icon: Icon(Icons.search, color: MyColors().primary,),
                             controller: searchTextController,
                           ),
                           decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
-                                color: Color.fromARGB(12, 0, 255, 26),
-                                blurRadius: 1,
+                                color: MyColors().shadow,
+                                blurRadius: 3,
                                 spreadRadius: .3,
                                 offset: Offset(0, 3)
                               ),
@@ -206,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if(!snapshot.hasData) return Text('Loading');
+                    if(!snapshot.hasData) return Loading();
                       List<InstitutionModel> institutions = [];
                       DocumentSnapshot doc;
                       for(doc in snapshot.data.docs){

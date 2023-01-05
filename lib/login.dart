@@ -38,8 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
           child: ListView(
             physics: BouncingScrollPhysics(),
             children: [
-              SizedBox(height: 10,),
-              Image.asset('assets/img/logo.png', scale: 4,),
+              SizedBox(height: 50,),
+              Image.asset('assets/img/logo.png', height: 130,),
               if(loading)Lottie.asset('assets/lottie/loading.json', height: 50)else SizedBox(height: 50,),
               Text('Login', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
               SizedBox(height: 15,),
@@ -141,6 +141,9 @@ class _LoginScreenState extends State<LoginScreen> {
           print(_email);
           _signInWithEmailAndPass(_email, passsword);
         }
+      });
+      setState(() {
+        loading = false;
       });
     });
   }

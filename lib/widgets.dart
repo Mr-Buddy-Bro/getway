@@ -293,7 +293,7 @@ class _BannerCardState extends State<BannerCard> {
 
     return Container(
       height: 110,
-      margin: EdgeInsets.only(top: 115, right: 15, left: 15),
+      margin: EdgeInsets.only(top: 105, right: 15, left: 15),
       decoration: BoxDecoration(
         color : Colors.white,
         borderRadius: BorderRadius.circular(15),
@@ -392,7 +392,7 @@ class DivCard extends StatelessWidget {
           children: [
             image,
             SizedBox(height: 10,),
-            Text(count.toString(), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green),),
+            Container(width: 100, child: Text(count.toString(), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green),textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis,)),
             SizedBox(height: 10,),
             Text(label, style: TextStyle(fontSize: 18),)
           ],

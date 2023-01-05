@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:getway/data_models/institution.dart';
+import 'package:getway/data_models/report.dart';
 import 'package:getway/data_models/room.dart';
 import 'package:getway/data_models/user.dart';
 import 'package:getway/encrypt.dart';
@@ -156,7 +157,48 @@ class _InstDetailsState extends State<InstDetails> {
                   Text('Address', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8,),
                   Text('${inst!.shortName},\n${inst!.landmark}, ${inst!.city}, ${inst!.district},\n${inst!.pincode}', style: TextStyle(fontSize: 18, color: Colors.black54),),
-                  SizedBox(height:40,)
+                  SizedBox(height:30,),
+                  GestureDetector(
+                    onTap: () {
+                      user != null?showDialog(
+                        context: context, 
+                        builder: ((context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            content: Container(
+                              height: 180,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TitleText(text:'Report '+ widget.inst!.shortName+'?'),
+                                  SizedBox(height: 20,),
+                                  DescText(text: 'On reporting this institution, the details of this institution with a report stamp will be sent to GetWay team and this institution will be evaluated.'),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(onPressed: (){
+                                Navigator.pop(context);
+                              }, child: Text('Cancel', style: TextStyle(color: Colors.green, fontSize: 16),)),
+                              TextButton(onPressed: (){
+                                _report();
+                              }, child: Text('Report',style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),))
+                            ],
+                          );
+                        })
+                      ):ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please login first')));
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 233, 70, 70),
+                        borderRadius: BorderRadius.circular(50)
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+                      child: Text('Report', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
+                    ),
+                  ),
+                  SizedBox(height: 40,)
                 ],
             ),
           ),
@@ -227,5 +269,13 @@ class _InstDetailsState extends State<InstDetails> {
           });
         });
       });
+  }
+  
+  _report()async{
+    final report = ReportModel(widget.inst!.docId.toString(), MyEncrypter().encrypt(widget.user!.username));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Reporting ${widget.inst!.shortName}')));
+    Navigator.pop(context);
+    await FirebaseFirestore.instance.collection('Reports').add(report.toJson());
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Report received')));
   }
 }

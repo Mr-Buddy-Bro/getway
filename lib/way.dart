@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -32,7 +33,11 @@ class _WayScreenState extends State<WayScreen> {
   @override
   Widget build(BuildContext context) {
 
-      _getUser();
+      final f_user = FirebaseAuth.instance.currentUser;
+      if(f_user != null){
+        _getUser();
+      }
+      
 
     sug_controller.addListener(() {
       setState(() {
@@ -130,6 +135,8 @@ class _WayScreenState extends State<WayScreen> {
                         .collection('Suggestions').doc(widget.room.roomLabel+Random().nextInt(8).toString()+'_sug').set(sug.toJson());
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Thanks for your suggestion'), duration: Duration(milliseconds: 1000)));
                         sug_controller.text = '';
+                      }else{
+                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please login first'), duration: Duration(milliseconds: 1000)));
                       }
                       
                     }else{
