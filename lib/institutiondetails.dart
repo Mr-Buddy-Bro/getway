@@ -158,15 +158,17 @@ class _InstDetailsState extends State<InstDetails> {
                   SizedBox(height: 8,),
                   Text('${inst!.shortName},\n${inst!.landmark}, ${inst!.city}, ${inst!.district},\n${inst!.pincode}', style: TextStyle(fontSize: 18, color: Colors.black54),),
                   SizedBox(height:30,),
-                  GestureDetector(
-                    onTap: () {
-                      user != null?showDialog(
+                  
+                  ElevatedButton(
+                    
+                    onPressed: (){
+                    user != null?showDialog(
                         context: context, 
                         builder: ((context) {
                           return AlertDialog(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             content: Container(
-                              height: 180,
+                              height: 160,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -177,26 +179,18 @@ class _InstDetailsState extends State<InstDetails> {
                               ),
                             ),
                             actions: [
-                              TextButton(onPressed: (){
+                              ElevatedButton(onPressed: (){
                                 Navigator.pop(context);
                               }, child: Text('Cancel', style: TextStyle(color: Colors.green, fontSize: 16),)),
-                              TextButton(onPressed: (){
+                              ElevatedButton(onPressed: (){
                                 _report();
-                              }, child: Text('Report',style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),))
+                              }, child: Text('Report'))
                             ],
                           );
                         })
                       ):ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: MySnackBar(msg: 'Please login first')));
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 233, 70, 70),
-                        borderRadius: BorderRadius.circular(50)
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 13),
-                      child: Text('Report', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
-                    ),
+                  }, 
+                  child: Container(width: double.infinity, child: Text('Report', textAlign: TextAlign.center,))
                   ),
                   SizedBox(height: 40,)
                 ],

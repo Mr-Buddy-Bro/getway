@@ -20,7 +20,7 @@ import 'my_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   UserModel? user;
-  HomeScreen({super.key, this.user=null});
+  HomeScreen({super.key, this.user = null});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState(user);
@@ -31,189 +31,243 @@ class _HomeScreenState extends State<HomeScreen> {
   List<InstitutionModel> institutions = [];
   final searchTextController = TextEditingController();
   User? f_user = FirebaseAuth.instance.currentUser;
-  
+
   _HomeScreenState(this.user);
-  
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    
-    if(f_user != null){
+
+    if (f_user != null) {
       _getUser();
     }
-    
   }
 
   @override
   Widget build(BuildContext context) {
-
     searchTextController.addListener((() {
-        searchInst(searchTextController.text.trim());
+      searchInst(searchTextController.text.trim());
     }));
-     
-   
+    print(user!.photoUrl);
+    final photoUrl = user!.photoUrl;
+
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 248, 251, 249),
+      // backgroundColor: Color.fromARGB(255, 248, 251, 249),
+      appBar: AppBar(
+        toolbarHeight: 80,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Get Way'),
+            Image.asset(
+              'assets/img/logo.png',
+              width: 40,
+            ),
+            
+          ],
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            showDialog(context: context, builder:(context) {
+              return AlertDialog(
+                title: Text('Exit'),
+                content: Text('Do you want to exit the app'),
+                actions: [
+                  OutlinedButton(
+                    onPressed: (){
+                      Navigator.pop(context);
+                  }, 
+                  child: Text('No')
+                  ),
+                  ElevatedButton(
+                    onPressed: (){
+                      exit(0);
+                  }, 
+                  child: Text('Exit')
+                  )
+                ],
+              );
+            },);
+          },
+          icon: Icon(Icons.exit_to_app)
+        ),
+        actions: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MenuBar(
+                            user: user,
+                          )));
+            },
+            child: Container(
+                width: 40.0,
+                height: 40.0,
+                decoration: new BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: new DecorationImage(
+                        fit: BoxFit.cover,
+                        image: new NetworkImage(photoUrl.length > 0
+                            ? photoUrl
+                            : 'https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg')))),
+          ),
+          SizedBox(
+            width: 20,
+          ),
+        ],
+      ),
       body: StreamBuilder(
-        stream: user != null? FirebaseFirestore.instance.collection('Users').doc(MyEncrypter().encrypt(user!.username)).snapshots():null,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          var photoUrl = '';
-          if(snapshot.hasData) {
-            photoUrl = user != null?snapshot.data['photoUrl']:'';
-          }
-          return ListView(
-            physics: BouncingScrollPhysics(),
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                              BoxShadow(
-                                color: Color.fromARGB(16, 158, 158, 158),
-                                blurRadius: 3,
-                                spreadRadius: .3,
-                                offset: Offset(0, 5)
-                              ),
-                              
-                            ],
-                        color: MyColors().primary,
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(15),
-                            bottomRight: Radius.circular(15))),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: ((context) => MyAalert()));
-                                  },
-                                  child: Icon(
-                                    Icons.exit_to_app_rounded,
-                                    size: 25,
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                  )),
-                              Image.asset(
-                                'assets/img/logo_white.png',
-                                width: 50,
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              MenuBar(user: user,)));
-                                },
-                                child: Container(
-                                    width: 40.0,
-                                    height: 40.0,
-                                    decoration: new BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        image: new DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: new NetworkImage(
-                                                photoUrl.length > 0? photoUrl:'https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg')))),
-                              ),
-                            ],
+          stream: user != null
+              ? FirebaseFirestore.instance
+                  .collection('Users')
+                  .doc(MyEncrypter().encrypt(user!.username))
+                  .snapshots()
+              : null,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            var photoUrl = '';
+            if (snapshot.hasData) {
+              photoUrl = user != null ? snapshot.data['photoUrl'] : '';
+            }
+            return ListView(
+              physics: BouncingScrollPhysics(),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      showSearch(
+                          context: context, delegate: MySearchDelegate());
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 13, horizontal: 20),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: MyColors().inputText
                           ),
+                      child: Row(children: [
+                        Icon(
+                          Icons.search,
                         ),
-                        Text(
-                          'Get Way',
-                          style:
-                              TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        SizedBox(
-                          height: 40,
-                        ),
-                      ],
+                        SizedBox(width: 10,),
+                        Text('Search Institutions, building etc.', style: TextStyle(fontSize: 18),)
+                      ]),
                     ),
                   ),
-                  // InfoCard() //for signed user
-                  // user != null?InfoCard():BannerCard()
-                  BannerCard()
-                  // BannerCard() // for signout
-                ],
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15.0,
                 ),
-                child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          child: InputText(
-                            hint: 'Search Institutions, building etc.',
-                            icon: Icon(Icons.search, color: MyColors().primary,),
-                            controller: searchTextController,
+                BannerCard(),
+                SizedBox(
+                  height: 15,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TitleText(
+                        text: 'Top Institutions',
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Container(
+                  child: StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('Institution')
+                          .snapshots(),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if (!snapshot.hasData) return Loading();
+                        List<InstitutionModel> institutions = [];
+                        DocumentSnapshot doc;
+                        for (doc in snapshot.data.docs) {
+                          final displayName = doc['displayName'];
+                          final desc = doc['description'];
+                          final hoi = doc['hoi'];
+                          final contactNo = doc['contactNo'];
+                          final shortName = doc['shortName'];
+                          final landmark = doc['landmark'];
+                          final city = doc['city'];
+                          final district = doc['district'];
+                          final pincode = doc['pincode'];
+                          final username = doc['username'];
+                          final photoUrl = doc['photoUrl'];
+                          final docId = doc['docId'];
+
+                          final inst = InstitutionModel(
+                              displayName,
+                              desc,
+                              hoi,
+                              contactNo,
+                              shortName,
+                              landmark,
+                              city,
+                              district,
+                              pincode,
+                              username,
+                              photoUrl,
+                              docId);
+                          // if(inst.username == user!.username)
+                          institutions.add(inst);
+                        }
+
+                        return Container(
+                          height: 180,
+                          child: PageView.builder(
+                            controller: PageController(
+                                viewportFraction:
+                                    MediaQuery.of(context).size.width > 600
+                                        ? 0.8
+                                        : 0.9),
+                            itemCount: institutions.length,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => InstDetails(
+                                                institutions[index],
+                                                user: user)));
+                                  },
+                                  child: TopInstCard(
+                                      name: institutions[index].displayName,
+                                      image: institutions[index].photoUrl));
+                            },
+                            physics: BouncingScrollPhysics(),
                           ),
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: MyColors().shadow,
-                                blurRadius: 3,
-                                spreadRadius: .3,
-                                offset: Offset(0, 3)
-                              ),
-                              
-                            ],
-                            borderRadius: BorderRadius.circular(15)
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        institutions.length > 0? Column(
-                          children: [
-                            ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: institutions.length,
-                              itemBuilder: ((context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(context, MaterialPageRoute(builder: ((context) => InstDetails(institutions[index]))));
-                                    },
-                                    child: ListTile(tileColor: Colors.grey[200],shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), title: Text(institutions[index].displayName + " - "+institutions[index].shortName),)
-                                  ),
-                                );
-                              }),
-                            ),
-                            SizedBox(height: 20,),
-                          ],
-                        ):SizedBox(),
-                        
-                        TitleText(
-                          text: 'Top Institutions',
-                        ),
-                      ],
-                    ),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Container(
-                child: StreamBuilder(
-                  stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if(!snapshot.hasData) return Loading();
+                        );
+                      }),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: TitleText(
+                    text: 'Nearby',
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('Institution')
+                        .snapshots(),
+                    builder: ((BuildContext context, AsyncSnapshot snapshot) {
+                      if (!snapshot.hasData) return Text('Loading');
                       List<InstitutionModel> institutions = [];
                       DocumentSnapshot doc;
-                      for(doc in snapshot.data.docs){
+                      for (doc in snapshot.data.docs) {
                         final displayName = doc['displayName'];
                         final desc = doc['description'];
                         final hoi = doc['hoi'];
@@ -226,155 +280,193 @@ class _HomeScreenState extends State<HomeScreen> {
                         final username = doc['username'];
                         final photoUrl = doc['photoUrl'];
                         final docId = doc['docId'];
-      
-                        final inst = InstitutionModel(displayName, desc, hoi, 
-                        contactNo, shortName, landmark, city, district, pincode, 
-                        username, photoUrl, docId);
+
+                        final inst = InstitutionModel(
+                            displayName,
+                            desc,
+                            hoi,
+                            contactNo,
+                            shortName,
+                            landmark,
+                            city,
+                            district,
+                            pincode,
+                            username,
+                            photoUrl,
+                            docId);
                         // if(inst.username == user!.username)
                         institutions.add(inst);
                       }
-                    
-                    return Container(
-                      height: 180,
-                      child: PageView.builder(
-                        controller: PageController(
-                            viewportFraction:
-                                MediaQuery.of(context).size.width > 600 ? 0.8 : 0.9),
+                      institutions.sort(
+                        (a, b) => a.pincode.compareTo(b.pincode),
+                      );
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        primary: false,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount:
+                                MediaQuery.of(context).size.width > 600 ? 4 : 2,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: .8),
                         itemCount: institutions.length,
                         itemBuilder: (context, index) {
-                          return InkWell(
+                          return GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => InstDetails(institutions[index], user: user)));
+                                        builder: ((context) => InstDetails(
+                                            institutions[index],
+                                            user: user))));
                               },
-                              child: TopInstCard(
-                                name: institutions[index].displayName,
-                                image: institutions[index].photoUrl
+                              child: NearbyInstCard(
+                                text: institutions[index].displayName,
+                                photoUrl: institutions[index].photoUrl,
                               ));
                         },
-                        physics: BouncingScrollPhysics(),
-                      ),
-                    );
-                  }
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: TitleText(
-                  text: 'Nearby',
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: StreamBuilder(
-                  stream: FirebaseFirestore.instance.collection('Institution').snapshots(),
-                  builder: ((BuildContext context, AsyncSnapshot snapshot) {
-                    if(!snapshot.hasData) return Text('Loading');
-                    List<InstitutionModel> institutions = [];
-                    DocumentSnapshot doc;
-                    for(doc in snapshot.data.docs){
-                      final displayName = doc['displayName'];
-                      final desc = doc['description'];
-                      final hoi = doc['hoi'];
-                      final contactNo = doc['contactNo'];
-                      final shortName = doc['shortName'];
-                      final landmark = doc['landmark'];
-                      final city = doc['city'];
-                      final district = doc['district'];
-                      final pincode = doc['pincode'];
-                      final username = doc['username'];
-                      final photoUrl = doc['photoUrl'];
-                      final docId = doc['docId'];
-      
-                      final inst = InstitutionModel(displayName, desc, hoi, 
-                      contactNo, shortName, landmark, city, district, pincode, 
-                      username, photoUrl, docId);
-                      // if(inst.username == user!.username)
-                      institutions.add(inst);
-                    }
-                    institutions.sort((a, b) => a.pincode.compareTo(b.pincode),);
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      primary: false,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: MediaQuery.of(context).size.width > 600?4:2,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 8,
-                        childAspectRatio: .8
-                      ),
-                      itemCount: institutions.length,
-                      itemBuilder: (context, index) {                    
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: ((context) => InstDetails(institutions[index], user: user))));
-                          },
-                          child: NearbyInstCard(text: institutions[index].displayName, photoUrl: institutions[index].photoUrl,)
-                        );
-                      },
-                    );
-                  }),
-                  
-                ),
-              )
-            ],
-          );
-        }
-      ),
+                      );
+                    }),
+                  ),
+                )
+              ],
+            );
+          }),
     );
   }
-  
-  _getUser() async{
-    final muser = f_user != null? await ProfileCall().getUser(context):null;
+
+  _getUser() async {
+    final muser = f_user != null ? await ProfileCall().getUser(context) : null;
     setState(() {
       user = muser;
     });
   }
-  
-  searchInst(String text)async{
-    if(text.length < 2){
-       setState(() {
-           institutions.clear();
-        });
-    }else{
-    List<InstitutionModel> _institution = [];
-    await FirebaseFirestore.instance.collection('Institution').get().then((snapshot) {
-      snapshot.docs.forEach((element) {
-        final String instName = element.data()['displayName'].toString().toLowerCase();
-        print(text);
-        if(instName.contains(text.toLowerCase())){
-          final String displayName = element.data()['displayName'].toString();
-          final String description = element.data()['description'].toString();
-          final String hoi = element.data()['hoi'].toString();
-          final String contactNo = element.data()['contactNo'].toString();
-          final String shortName = element.data()['shortName'].toString();
-          final String landmark = element.data()['landmark'].toString();
-          final String city = element.data()['city'].toString();
-          final String district = element.data()['district'].toString();
-          final String pincode = element.data()['pincode'].toString();
-          final String username = element.data()['username'].toString();
-          final String photoUrl = element.data()['photoUrl'].toString();
-          final String docId = element.data()['docId'].toString();
-          final inst = InstitutionModel(displayName, description, hoi, contactNo, shortName, landmark, city, 
-                        district, pincode, username, photoUrl, docId);
-          _institution.add(inst);
-         
-        }
+
+  searchInst(String text) async {
+    if (text.length < 2) {
+      setState(() {
+        institutions.clear();
       });
-    });
-    
-    
-    setState(() {
-      institutions = _institution;
-      
-    });
+    } else {
+      List<InstitutionModel> _institution = [];
+      await FirebaseFirestore.instance
+          .collection('Institution')
+          .get()
+          .then((snapshot) {
+        snapshot.docs.forEach((element) {
+          final String instName =
+              element.data()['displayName'].toString().toLowerCase();
+          print(text);
+          if (instName.contains(text.toLowerCase())) {
+            final String displayName = element.data()['displayName'].toString();
+            final String description = element.data()['description'].toString();
+            final String hoi = element.data()['hoi'].toString();
+            final String contactNo = element.data()['contactNo'].toString();
+            final String shortName = element.data()['shortName'].toString();
+            final String landmark = element.data()['landmark'].toString();
+            final String city = element.data()['city'].toString();
+            final String district = element.data()['district'].toString();
+            final String pincode = element.data()['pincode'].toString();
+            final String username = element.data()['username'].toString();
+            final String photoUrl = element.data()['photoUrl'].toString();
+            final String docId = element.data()['docId'].toString();
+            final inst = InstitutionModel(
+                displayName,
+                description,
+                hoi,
+                contactNo,
+                shortName,
+                landmark,
+                city,
+                district,
+                pincode,
+                username,
+                photoUrl,
+                docId);
+            _institution.add(inst);
+          }
+        });
+      });
+
+      setState(() {
+        institutions = _institution;
+      });
     }
+  }
+}
+
+class MySearchDelegate extends SearchDelegate {
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    // // TODO: implement buildActions
+    return [
+      IconButton(
+          onPressed: () {
+            if (query.isEmpty) {
+              close(context, null);
+            } else
+              query = '';
+          },
+          icon: Icon(Icons.clear)),
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    // TODO: implement buildLeading
+    return IconButton(
+        onPressed: () {
+          close(context, null);
+        },
+        icon: Icon(Icons.arrow_back));
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    return Container();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // TODO: implement buildSuggestions
+    List<String> sug = [
+      'Naipunnya Institute of Management and Information Technology',
+      'Littile Flower Hospital, Angamaly'
+    ];
+    return Column(
+      children: [
+        SizedBox(
+          height: 20,
+        ),
+        ListView.builder(
+            shrinkWrap: true,
+            itemCount: sug.length,
+            itemBuilder: ((context, index) {
+              return ListTile(
+                title: Text(
+                  sug[index],
+                  style: TextStyle(color: Colors.black54),
+                ),
+                subtitle: Text('College'),
+                onTap: () {
+                  query = sug[index];
+                },
+              );
+            })),
+      ],
+    );
+  }
+}
+
+class BottomNavBar extends StatelessWidget {
+  const BottomNavBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 50,
+      child: Container(),
+    );
   }
 }

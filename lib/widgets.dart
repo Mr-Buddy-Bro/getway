@@ -40,7 +40,7 @@ class InputText extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(50),
         color: MyColors().inputText
       ),
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -94,7 +94,7 @@ class TitleText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style:TextStyle(fontSize: 20,fontWeight: FontWeight.w500, color: Color.fromARGB(255, 34, 67, 24)));
+    return Text(text, style:TextStyle(fontSize: 20,fontWeight: FontWeight.w500, ));
   }
 }
 
@@ -293,13 +293,10 @@ class _BannerCardState extends State<BannerCard> {
 
     return Container(
       height: 110,
-      margin: EdgeInsets.only(top: 105, right: 15, left: 15),
+      margin: EdgeInsets.only(top: 10, right: 15, left: 15),
       decoration: BoxDecoration(
         color : Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(blurRadius: 3.0, color: Color.fromARGB(53, 1, 255, 31), spreadRadius: 0.0),
-        ],
         image: DecorationImage(
           image: NetworkImage(bannerUrl,),
           fit: BoxFit.cover
@@ -561,12 +558,14 @@ class MyAalert extends StatelessWidget {
       title: Text('Exit!', style: TextStyle(color: Colors.redAccent),),
       content: Text('Do you want to exit?'),
       actions: [
-        TextButton(onPressed: (){
+        ElevatedButton(onPressed: (){
           Navigator.pop(context);
-        }, child: Text('No', style: TextStyle(fontSize: 18, color: Colors.green),), ),
-        TextButton(onPressed: (){
+        }, child: Text('No', style: TextStyle(fontSize: 18),),
+          
+        ),
+        ElevatedButton(onPressed: (){
           SystemNavigator.pop();
-        }, child: Text('Yes', style: TextStyle(fontSize: 18, color: Colors.green),),),
+        }, child: Text('Yes', style: TextStyle(fontSize: 18,),),),
       ],
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -597,3 +596,46 @@ class Loading extends StatelessWidget {
     );
   }
 }
+
+// Container(
+//                           child: InputText(
+//                             hint: 'Search Institutions, building etc.',
+//                             icon: Icon(Icons.search, color: MyColors().primary,),
+//                             controller: searchTextController,
+//                           ),
+//                           decoration: BoxDecoration(
+//                             boxShadow: [
+//                               BoxShadow(
+//                                 color: MyColors().shadow,
+//                                 blurRadius: 3,
+//                                 spreadRadius: .3,
+//                                 offset: Offset(0, 3)
+//                               ),
+                              
+//                             ],
+//                             borderRadius: BorderRadius.circular(15)
+//                           ),
+//                         ),
+//                         SizedBox(
+//                           height: 20,
+//                         ),
+//                         institutions.length > 0? Column(
+//                           children: [
+//                             ListView.builder(
+//                               shrinkWrap: true,
+//                               itemCount: institutions.length,
+//                               itemBuilder: ((context, index) {
+//                                 return Padding(
+//                                   padding: const EdgeInsets.all(2.0),
+//                                   child: GestureDetector(
+//                                     onTap: () {
+//                                       Navigator.push(context, MaterialPageRoute(builder: ((context) => InstDetails(institutions[index]))));
+//                                     },
+//                                     child: ListTile(tileColor: Colors.grey[200],shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), title: Text(institutions[index].displayName + " - "+institutions[index].shortName),)
+//                                   ),
+//                                 );
+//                               }),
+//                             ),
+//                             SizedBox(height: 20,),
+//                           ],
+//                         ):SizedBox(),
